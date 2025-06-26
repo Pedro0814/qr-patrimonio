@@ -1,305 +1,276 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QR Code Patrimonial</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #1e1e2f, #2e3a59);
-      color: #333;
-    }
-
-    .container {
-      max-width: 500px;
-      background: white;
-      margin: 40px auto;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-      position: relative;
-    }
-
-    .logo-internal {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    .logo-internal img {
-      max-width: 180px;
-      height: auto;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .header h1 {
-      color: #1a237e;
-      font-size: 28px;
-      margin: 10px 0 5px;
-    }
-
-    .header p {
-      font-size: 14px;
-      color: #555;
-    }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin: 15px 0 5px;
-    }
-
-    .instruction {
-      font-size: 12px;
-      color: #666;
-      font-weight: 400;
-      margin-top: 2px;
-      margin-bottom: 8px;
-      font-style: italic;
-    }
-
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background-color: #2e7d32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #1b5e20;
-    }
-
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    canvas {
-      display: none;
-    }
-
-    .progress {
-      display: none;
-      margin-top: 15px;
-      text-align: center;
-      color: #666;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        margin: 20px 16px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>QR code Patrimonial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .logo-header {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-header img {
+            max-height: 70px;
+            filter: brightness(0.95);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #1a237e;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin: 15px 0 5px;
+        }
+        .instruction {
+            font-size: 12px;
+            color: #666;
+            font-weight: 400;
+            margin-top: 2px;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #43a047;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .progress {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            color: #666;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="logo-header">
+            <img src="logo.png" alt="Logo Trílogo">
+        </div>
+        <div class="header">
+            <h1>🔓 QR code Patrimonial</h1>
+            <p>Gerador de QRcodes Patrimonial Trílogo</p>
+        </div>
 
-  <div class="container">
-    <div class="logo-internal">
-      <img src="logo.png" alt="Logo Trílogo">
+        <label for="client">🧑‍💼 Nome do Cliente:</label>
+        <div class="instruction">Nome que está no link do domínio trílogo ex: localiza.trilogo.app = localiza</div>
+        <input type="text" id="client" placeholder="Ex: localiza" />
+
+        <label for="start">🔢 Número Inicial:</label>
+        <input type="number" id="start" value="1" />
+
+        <label for="end">🔢 Número Final:</label>
+        <input type="number" id="end" value="3" />
+
+        <button id="generateBtn" onclick="generateAll()">🎟️ GERAR QR CODES</button>
+
+        <div class="progress" id="progress">
+            <p>Gerando QR Codes... <span id="progressText">0/0</span></p>
+        </div>
     </div>
 
-    <div class="header">
-      <h1>🧾 QR Code Patrimonial</h1>
-      <p>Gerador de QR Codes Patrimonial Trílogo</p>
-    </div>
+    <canvas id="previewCanvas" width="1600" height="900"></canvas>
 
-    <label for="client">🧑‍💼 Nome do Cliente:</label>
-    <div class="instruction">Nome que está no link do domínio Trílogo. Ex: localiza.trilogo.app → localiza</div>
-    <input type="text" id="client" placeholder="Ex: localiza" />
+    <script>
+        let logoImage = null;
 
-    <label for="start">🔢 Número Inicial:</label>
-    <input type="number" id="start" value="1" />
+        function loadDefaultLogo() {
+            logoImage = new Image();
+            logoImage.crossOrigin = 'anonymous';
+            logoImage.onload = function() {
+                console.log('Logo carregado com sucesso');
+            };
+            logoImage.onerror = function() {
+                console.log('Logo padrão não encontrado, continuando sem logo');
+                logoImage = null;
+            };
+            logoImage.src = 'logo.png';
+        }
 
-    <label for="end">🔢 Número Final:</label>
-    <input type="number" id="end" value="3" />
+        window.addEventListener('load', loadDefaultLogo);
 
-    <button id="generateBtn" onclick="generateAll()">🎟️ GERAR QR CODES</button>
+        function generateImage(client, identifier) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.getElementById("previewCanvas");
+                const ctx = canvas.getContext("2d");
 
-    <div class="progress" id="progress">
-      <p>Gerando QR Codes... <span id="progressText">0/0</span></p>
-    </div>
-  </div>
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  <canvas id="previewCanvas" width="1600" height="900"></canvas>
+                const qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
+                try {
+                    const qr = new QRious({ value: qrData, size: 659, level: "L" });
+                    const qrImg = new Image();
 
-  <script>
-    let logoImage = null;
+                    qrImg.onload = function () {
+                        ctx.drawImage(qrImg, 30, 121, 659, 659);
 
-    function loadDefaultLogo() {
-      logoImage = new Image();
-      logoImage.crossOrigin = 'anonymous';
-      logoImage.onload = function() {
-        console.log('Logo carregada com sucesso');
-      };
-      logoImage.onerror = function() {
-        console.log('Erro ao carregar logo');
-        logoImage = null;
-      };
-      logoImage.src = 'logo.png';
-    }
+                        const patrimonioX = 835;
+                        const patrimonioY = 520;
+                        ctx.font = "bold 93px Inter";
+                        ctx.fillStyle = "black";
+                        ctx.textAlign = "left";
 
-    window.addEventListener('load', loadDefaultLogo);
+                        const patrimonioText = "Patrimônio";
+                        ctx.fillText(patrimonioText, patrimonioX, patrimonioY);
 
-    function generateImage(client, identifier) {
-      return new Promise((resolve, reject) => {
-        const canvas = document.getElementById("previewCanvas");
-        const ctx = canvas.getContext("2d");
+                        if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
+                            try {
+                                const logoTargetWidth = 360;
+                                const logoRatio = logoImage.height / logoImage.width;
+                                const logoTargetHeight = logoTargetWidth * logoRatio;
+                                const logoX = patrimonioX + (ctx.measureText(patrimonioText).width - logoTargetWidth) / 2;
+                                const logoY = patrimonioY - logoTargetHeight - 45;
+                                ctx.drawImage(logoImage, logoX, logoY, logoTargetWidth, logoTargetHeight);
+                            } catch (e) {
+                                console.log('Erro ao desenhar logo');
+                            }
+                        }
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        const idText = identifier.toString();
+                        const idX = patrimonioX;
+                        const idY = 630;
+                        ctx.fillText(idText, idX, idY);
 
-        const qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
+                        const dataURL = canvas.toDataURL('image/png');
+                        fetch(dataURL)
+                            .then(res => res.blob())
+                            .then(blob => resolve(blob))
+                            .catch(err => reject(err));
+                    };
 
-        try {
-          const qr = new QRious({ value: qrData, size: 659, level: "L" });
-          const qrImg = new Image();
+                    qrImg.onerror = function() {
+                        reject(new Error('Erro ao carregar QR code'));
+                    };
 
-          qrImg.onload = function () {
-            ctx.drawImage(qrImg, 30, 121, 659, 659);
+                    qrImg.src = qr.toDataURL();
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
 
-            const patrimonioX = 835;
-            const patrimonioY = 460;
-            ctx.font = "93px Inter";
-            ctx.fillStyle = "black";
+        async function generateAll() {
+            const client = document.getElementById('client').value.trim();
+            const start = parseInt(document.getElementById('start').value);
+            const end = parseInt(document.getElementById('end').value);
 
-            const patrimonioText = "Patrimônio";
-            ctx.fillText(patrimonioText, patrimonioX, patrimonioY);
-            const patrimonioWidth = ctx.measureText(patrimonioText).width;
-
-            if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
-              try {
-                const logoScale = 0.75;
-                const logoWidth = logoImage.naturalWidth * logoScale;
-                const logoHeight = logoImage.naturalHeight * logoScale;
-                const logoX = patrimonioX + (patrimonioWidth - logoWidth) / 2;
-                const logoY = patrimonioY - logoHeight - 20;
-                ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
-              } catch (e) {
-                console.log('Erro ao desenhar logo, continuando sem logo');
-              }
+            if (!client || isNaN(start) || isNaN(end) || start > end) {
+                alert("Preencha todos os campos corretamente.");
+                return;
             }
 
-            const idText = identifier.toString();
-            const idY = 600;
-            const idWidth = ctx.measureText(idText).width;
-            const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
-            ctx.fillText(idText, idX, idY);
+            const generateBtn = document.getElementById('generateBtn');
+            const progress = document.getElementById('progress');
+            const progressText = document.getElementById('progressText');
 
-            const dataURL = canvas.toDataURL('image/png');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Gerando...';
+            progress.style.display = 'block';
 
-            fetch(dataURL)
-              .then(res => res.blob())
-              .then(blob => resolve(blob))
-              .catch(err => reject(err));
-          };
+            try {
+                const zip = new JSZip();
+                const total = end - start + 1;
+                let current = 0;
+                const images = [];
 
-          qrImg.onerror = function () {
-            reject(new Error('Erro ao carregar QR code'));
-          };
+                for (let i = start; i <= end; i++) {
+                    current++;
+                    progressText.textContent = `${current}/${total}`;
 
-          qrImg.src = qr.toDataURL();
-        } catch (error) {
-          reject(error);
+                    const imageBlob = await generateImage(client, i);
+
+                    if (imageBlob && imageBlob.size > 0) {
+                        images.push({ filename: `${client}_${i}.png`, blob: imageBlob });
+                    }
+
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+
+                images.forEach(img => {
+                    zip.file(img.filename, img.blob);
+                });
+
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(zipBlob);
+                link.download = `${client}_QR_Codes.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
+                alert(`${images.length} QR Codes gerados com sucesso!`);
+
+            } catch (error) {
+                console.error('Erro durante a geração:', error);
+                alert(`Erro: ${error.message}`);
+            }
+
+            generateBtn.disabled = false;
+            generateBtn.textContent = '🎟️ GERAR QR CODES';
+            progress.style.display = 'none';
+            progressText.textContent = '0/0';
         }
-      });
-    }
-
-    async function generateAll() {
-      const client = document.getElementById('client').value.trim();
-      const start = parseInt(document.getElementById('start').value);
-      const end = parseInt(document.getElementById('end').value);
-
-      if (!client || isNaN(start) || isNaN(end) || start > end) {
-        alert("Preencha todos os campos corretamente.");
-        return;
-      }
-
-      const generateBtn = document.getElementById('generateBtn');
-      const progress = document.getElementById('progress');
-      const progressText = document.getElementById('progressText');
-
-      generateBtn.disabled = true;
-      generateBtn.textContent = 'Gerando...';
-      progress.style.display = 'block';
-
-      try {
-        const zip = new JSZip();
-        const total = end - start + 1;
-        let current = 0;
-        const images = [];
-
-        for (let i = start; i <= end; i++) {
-          current++;
-          progressText.textContent = `${current}/${total}`;
-          const imageBlob = await generateImage(client, i);
-
-          if (imageBlob && imageBlob.size > 0) {
-            images.push({ filename: `${client}_${i}.png`, blob: imageBlob });
-          }
-
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
-
-        images.forEach(img => {
-          zip.file(img.filename, img.blob);
-        });
-
-        if (images.length === 0) {
-          throw new Error('Nenhuma imagem foi gerada com sucesso');
-        }
-
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(zipBlob);
-        link.download = `${client}_QR_Codes.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-
-        alert(`${images.length} QR Codes gerados com sucesso!`);
-
-      } catch (error) {
-        alert(`Erro: ${error.message}`);
-      }
-
-      generateBtn.disabled = false;
-      generateBtn.textContent = '🎟️ GERAR QR CODES';
-      progress.style.display = 'none';
-      progressText.textContent = '0/0';
-    }
-  </script>
-
+    </script>
 </body>
 </html>
