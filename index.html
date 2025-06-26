@@ -188,7 +188,7 @@
             ctx.drawImage(qrImg, 3, 121, 659, 659);
 
             const patrimonioX = 835;
-            const patrimonioY = 460; // Exata posição do Python
+            const patrimonioY = 500; // Movido mais para baixo
             ctx.font = "bold 93px Inter"; // Exatamente como no Python: Inter-Bold, 93px
             ctx.fillStyle = "black";
 
@@ -211,7 +211,7 @@
 
             const idText = identifier.toString();
             ctx.font = "bold 93px Inter"; // Mesmo tamanho e fonte do "Patrimônio"
-            const idY = 600; // Exata posição Y do Python
+            const idY = 640; // Movido mais para baixo também
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
             ctx.fillText(idText, idX, idY);
