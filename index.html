@@ -185,11 +185,11 @@
           const qrImg = new Image();
 
           qrImg.onload = function () {
-            ctx.drawImage(qrImg, 30, 121, 659, 659);
+            ctx.drawImage(qrImg, 3, 121, 659, 659);
 
             const patrimonioX = 835;
-            const patrimonioY = 300; // Movido para cima
-            ctx.font = "bold 70px Arial"; // Fonte mais grossa e menor
+            const patrimonioY = 460; // Exata posição do Python
+            ctx.font = "bold 93px Inter"; // Exatamente como no Python: Inter-Bold, 93px
             ctx.fillStyle = "black";
 
             const patrimonioText = "Patrimônio";
@@ -210,8 +210,8 @@
             }
 
             const idText = identifier.toString();
-            ctx.font = "bold 140px Arial"; // Número maior e mais grosso
-            const idY = 500; // Posicionado mais abaixo
+            ctx.font = "bold 93px Inter"; // Mesmo tamanho e fonte do "Patrimônio"
+            const idY = 600; // Exata posição Y do Python
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
             ctx.fillText(idText, idX, idY);
