@@ -202,7 +202,7 @@
                 const logoWidth = logoImage.naturalWidth * logoScale;
                 const logoHeight = logoImage.naturalHeight * logoScale;
                 const logoX = patrimonioX + (patrimonioWidth - logoWidth) / 2;
-                const logoY = patrimonioY - logoHeight - 20;
+                const logoY = 460 - logoHeight - 20; // Logo mantém posição original baseada em Y=460
                 ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
               } catch (e) {
                 console.log('Erro ao desenhar logo, continuando sem logo');
