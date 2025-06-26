@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QR Code Patrimonial</title>
+  <title>QR Code de Placa de Patrimônio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -129,13 +129,13 @@
     </div>
 
     <div class="header">
-      <h1>🧾 QR Code Patrimonial</h1>
+      <h1>🧾 QR Code de Placa de Patrimônio</h1>
       <p>Gerador de QR Codes Patrimonial Trílogo</p>
     </div>
 
     <label for="client">🧑‍💼 Nome do Cliente:</label>
-    <div class="instruction">Nome que está no link do domínio Trílogo. Ex: localiza.trilogo.app → localiza</div>
-    <input type="text" id="client" placeholder="Ex: localiza" />
+    <div class="instruction">Nome que está no link do domínio Trílogo. Ex: minhaempresa.trilogo.app → minhaempresa</div>
+    <input type="text" id="client" placeholder="Ex: minhaempresa" />
 
     <label for="start">🔢 Número Inicial:</label>
     <input type="number" id="start" value="1" />
@@ -188,8 +188,8 @@
             ctx.drawImage(qrImg, 3, 121, 659, 659);
 
             const patrimonioX = 835;
-            const patrimonioY = 520; // Mais um pouco para baixo
-            ctx.font = "bold 93px Inter"; // Exatamente como no Python: Inter-Bold, 93px
+            const patrimonioY = 520;
+            ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
             const patrimonioText = "Patrimônio";
@@ -202,7 +202,7 @@
                 const logoWidth = logoImage.naturalWidth * logoScale;
                 const logoHeight = logoImage.naturalHeight * logoScale;
                 const logoX = patrimonioX + (patrimonioWidth - logoWidth) / 2;
-                const logoY = 460 - logoHeight - 20; // Logo mantém posição original baseada em Y=460
+                const logoY = 460 - logoHeight - 20;
                 ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
               } catch (e) {
                 console.log('Erro ao desenhar logo, continuando sem logo');
@@ -210,8 +210,8 @@
             }
 
             const idText = identifier.toString();
-            ctx.font = "bold 93px Inter"; // Mesmo tamanho e fonte do "Patrimônio"
-            const idY = 660; // Mais um pouco para baixo também
+            ctx.font = "bold 93px Inter";
+            const idY = 660;
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
             ctx.fillText(idText, idX, idY);
