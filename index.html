@@ -321,8 +321,8 @@
             ctx.drawImage(qrImg, 3, 121, 659, 659);
 
             const patrimonioX = 835;
-            const patrimonioY = 490; // posição fixa conforme referência
-            ctx.font = "bold 85px Inter";
+            const patrimonioY = 570; // levemente mais acima do ajuste anterior (antes: 600)
+            ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
             const patrimonioText = "Patrimônio";
@@ -344,7 +344,7 @@
 
             const idText = identifier.toString();
             ctx.font = "bold 93px Inter";
-            const idY = 590; // posição conforme referência
+            const idY = 710; // acompanha o deslocamento (antes: 740)
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
             ctx.fillText(idText, idX, idY);
