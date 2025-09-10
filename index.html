@@ -221,13 +221,11 @@
         }
       }
 
-      // Define a logo padrão conforme rota
+      // Define a logo utilizada no CANVAS conforme rota (a logo na interface permanece logo.png)
       const logoSrc = isEngenharia ? 'engenharia.png' : 'logo.png';
-
-      // Atualiza a logo exibida no topo
       const headerLogo = document.querySelector('.logo-internal img');
       if (headerLogo) {
-        headerLogo.src = logoSrc;
+        headerLogo.src = 'logo.png';
       }
 
       // Carrega a imagem utilizada no canvas
@@ -323,7 +321,7 @@
             ctx.drawImage(qrImg, 3, 121, 659, 659);
 
             const patrimonioX = 835;
-            const patrimonioY = 520;
+            const patrimonioY = 600; // deslocado mais para baixo
             ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
@@ -346,7 +344,7 @@
 
             const idText = identifier.toString();
             ctx.font = "bold 93px Inter";
-            const idY = 660;
+            const idY = 740; // acompanha o deslocamento do texto "Patrimônio"
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
             ctx.fillText(idText, idX, idY);
