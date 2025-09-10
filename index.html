@@ -205,6 +205,32 @@
     // let customLogoObjectUrl = null; // DESABILITADO TEMPORARIAMENTE
 
     function loadDefaultLogo() {
+      const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
+      const isEngenharia = pathname === '/engenhariadocorpo';
+
+      // Atualiza input do cliente conforme rota
+      const clientInput = document.getElementById('client');
+      if (clientInput) {
+        if (isEngenharia) {
+          clientInput.value = 'engenhariadocorpo';
+          clientInput.readOnly = true;
+        } else {
+          // Mantém editável em outras rotas
+          if (!clientInput.value) clientInput.value = '';
+          clientInput.readOnly = false;
+        }
+      }
+
+      // Define a logo padrão conforme rota
+      const logoSrc = isEngenharia ? 'engenharia.png' : 'logo.png';
+
+      // Atualiza a logo exibida no topo
+      const headerLogo = document.querySelector('.logo-internal img');
+      if (headerLogo) {
+        headerLogo.src = logoSrc;
+      }
+
+      // Carrega a imagem utilizada no canvas
       logoImage = new Image();
       logoImage.crossOrigin = 'anonymous';
       logoImage.onload = function() {
@@ -214,7 +240,7 @@
         console.log('Erro ao carregar logo');
         logoImage = null;
       };
-      logoImage.src = 'logo.png';
+      logoImage.src = logoSrc;
     }
 
     window.addEventListener('load', loadDefaultLogo);
