@@ -463,6 +463,14 @@
             ctx.fillStyle = "black";
 
             const patrimonioText = "Patrimônio";
+            // Cor dinâmica do texto "Patrimônio" conforme o fundo
+            const patrimonioFontPx = 93; // apesar da fonte estar em 93px, mantemos para estimar altura
+            try {
+              const patrLuma = computeAreaLuminance(ctx, patrimonioX, patrimonioY - patrimonioFontPx, Math.max(1, ctx.measureText(patrimonioText).width), patrimonioFontPx + 10);
+              ctx.fillStyle = (patrLuma < 170) ? "white" : "black";
+            } catch (e) {
+              ctx.fillStyle = "black";
+            }
             ctx.fillText(patrimonioText, patrimonioX, patrimonioY);
             const patrimonioWidth = ctx.measureText(patrimonioText).width;
 
@@ -485,6 +493,14 @@
             const idY = 710; // acompanha o deslocamento (antes: 740)
             const idWidth = ctx.measureText(idText).width;
             const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
+            // Cor dinâmica do número conforme o fundo
+            const numberFontPx = 93;
+            try {
+              const numLuma = computeAreaLuminance(ctx, idX, idY - numberFontPx, Math.max(1, idWidth), numberFontPx + 8);
+              ctx.fillStyle = (numLuma < 170) ? "white" : "black";
+            } catch (e) {
+              ctx.fillStyle = "black";
+            }
             ctx.fillText(idText, idX, idY);
 
             const dataURL = canvas.toDataURL('image/png');
