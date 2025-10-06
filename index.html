@@ -229,6 +229,32 @@
     let logoImage = null;
     // let customLogoObjectUrl = null; // DESABILITADO TEMPORARIAMENTE
     let templateImage = null;
+    
+    function computeAreaLuminance(ctx, x, y, w, h) {
+      // Amostra alguns pontos dentro da área e calcula luminância média
+      const samplePoints = [
+        [x + w / 2, y + h / 2], // centro
+        [x + w * 0.25, y + h * 0.25],
+        [x + w * 0.75, y + h * 0.25],
+        [x + w * 0.25, y + h * 0.75],
+        [x + w * 0.75, y + h * 0.75]
+      ];
+      let total = 0;
+      let count = 0;
+      for (const [sx, sy] of samplePoints) {
+        try {
+          const data = ctx.getImageData(Math.floor(sx), Math.floor(sy), 1, 1).data;
+          const r = data[0], g = data[1], b = data[2];
+          const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          total += luminance;
+          count += 1;
+        } catch (e) {
+          // Se falhar (CORS/taint), retorna valor alto para não inverter por engano
+          return 255;
+        }
+      }
+      return count > 0 ? (total / count) : 255;
+    }
 
     function loadDefaultLogo() {
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
@@ -287,21 +313,24 @@
     });
 
     function loadTemplate(templateNumber) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
           img.onload = function() {
             templateImage = img;
-            resolve();
+            resolve(true);
           };
           img.onerror = function() {
-            reject(new Error('Falha ao carregar template'));
+            // Falha ao carregar template: segue sem template (fundo branco)
+            templateImage = null;
+            resolve(false);
           };
           const number = String(templateNumber || '1').trim();
           img.src = `/${number}.png`;
         } catch (e) {
-          reject(e);
+          templateImage = null;
+          resolve(false);
         }
       });
     }
@@ -322,7 +351,7 @@
       if (!currentSrc.endsWith(expectedSuffix)) {
         return loadTemplate(chosen);
       }
-      if (isLoaded) return Promise.resolve();
+      if (isLoaded) return Promise.resolve(true);
       return loadTemplate(chosen);
     }
 
@@ -409,7 +438,20 @@
         const qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
 
         try {
-          const qr = new QRious({ value: qrData, size: 659, level: "L" });
+          // Decide a cor do QR conforme o fundo sob a área do QR
+          // Retângulo do QR: x=3, y=121, w=659, h=659
+          let qrForeground = "black";
+          try {
+            const bgLuma = computeAreaLuminance(ctx, 3 + 10, 121 + 10, 659 - 20, 659 - 20);
+            // limiar: abaixo de ~170 consideramos fundo escuro
+            if (bgLuma < 170) {
+              qrForeground = "white";
+            }
+          } catch (e) {
+            // se falhar medição, mantém preto
+          }
+
+          const qr = new QRious({ value: qrData, size: 659, level: "L", foreground: qrForeground, background: "white", backgroundAlpha: 0 });
           const qrImg = new Image();
 
           qrImg.onload = function () {
@@ -424,7 +466,8 @@
             ctx.fillText(patrimonioText, patrimonioX, patrimonioY);
             const patrimonioWidth = ctx.measureText(patrimonioText).width;
 
-            if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
+            // Não desenha logo se um template de fundo estiver presente
+            if (!templateImage && logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
               try {
                 const logoScale = 0.75;
                 const logoWidth = logoImage.naturalWidth * logoScale;
@@ -458,11 +501,14 @@
 
           qrImg.src = qr.toDataURL();
         } catch (error) {
-          reject(error);
+          // Mesmo que algo falhe, não derruba o fluxo inteiro
+          resolve(null);
         }
           })
-          .catch((err) => {
-            reject(err);
+          .catch(() => {
+            // Se o template não carregar, seguimos sem ele
+            // Fundo branco já foi aplicado
+            resolve(null);
           });
       });
     }
@@ -552,9 +598,11 @@
         const previewEl = document.getElementById('templatePreview');
         if (previewEl) {
           previewEl.src = `/${chosen}.png`;
+          // Se a imagem da prévia falhar, apenas mantém o src quebrado visualmente sem travar a geração
+          previewEl.onerror = function() { /* silencioso */ };
         }
-        loadTemplate(chosen).catch(() => {
-          templateImage = null;
+        loadTemplate(chosen).then(() => {
+          // nada a fazer; geração usará templateImage se disponível
         });
       });
     }
