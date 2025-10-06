@@ -309,6 +309,7 @@
       const previewContainer = document.getElementById('templatePreviewContainer');
       if (initialTemplate === '0') {
         if (previewContainer) previewContainer.style.display = 'block';
+        // A prévia do padrão agora é gerada dinamicamente (fallback para padrao.png em erro)
         if (previewEl) previewEl.src = `/padrao.png`;
         const hint = document.getElementById('templatePreviewHint');
         if (hint) hint.style.display = 'none';
@@ -323,10 +324,8 @@
         templateImage = null;
       });
 
-      // Gera pré-visualização dinâmica para templates 1-10
-      if (initialTemplate !== '0') {
-        updatePreviewForCurrentTemplate();
-      }
+      // Gera pré-visualização dinâmica (inclui Padrão agora)
+      updatePreviewForCurrentTemplate();
     });
 
     function updatePreviewForCurrentTemplate() {
@@ -334,11 +333,7 @@
       const chosen = (selectEl && selectEl.value) ? selectEl.value : '0';
       const previewEl = document.getElementById('templatePreview');
       const hint = document.getElementById('templatePreviewHint');
-      if (chosen === '0') {
-        // Padrão: imagem estática já configurada
-        return;
-      }
-      // Carrega template e renderiza uma imagem exemplo com cliente 'teste' e id 1
+      // Carrega template (ou limpa se Padrão) e renderiza uma imagem exemplo com cliente 'teste' e id 1
       loadTemplate(chosen)
         .then(() => generateImage('teste', 1))
         .then(blob => {
@@ -355,7 +350,9 @@
         })
         .catch(() => {
           // Se falhar, mantém a imagem do arquivo template
-          if (previewEl) previewEl.src = `/${chosen}.png`;
+          if (previewEl) {
+            if (chosen === '0') previewEl.src = `/padrao.png`; else previewEl.src = `/${chosen}.png`;
+          }
           if (hint) hint.style.display = 'none';
         });
     }
@@ -682,28 +679,14 @@
         const chosen = templateSelect.value || '0';
         const previewEl = document.getElementById('templatePreview');
         const previewContainer = document.getElementById('templatePreviewContainer');
-        if (chosen === '0') {
-          if (previewEl) {
-            previewEl.src = `/padrao.png`;
-            previewEl.onerror = function() {
-              const hint = document.getElementById('templatePreviewHint');
-              if (hint) hint.style.display = 'block';
-            };
-          }
-          if (previewContainer) previewContainer.style.display = 'block';
-          const hint = document.getElementById('templatePreviewHint');
-          if (hint) hint.style.display = 'none';
-        } else {
-          // Geração dinâmica do preview renderizado
-          if (previewContainer) previewContainer.style.display = 'block';
-          const hint = document.getElementById('templatePreviewHint');
-          if (hint) hint.style.display = 'none';
-        }
-        // Atualiza o template selecionado e renderiza preview dinâmico
+        // Sempre mostrar container
+        if (previewContainer) previewContainer.style.display = 'block';
+        const hint = document.getElementById('templatePreviewHint');
+        if (hint) hint.style.display = 'none';
+
+        // Atualiza o template selecionado e renderiza preview dinâmico (inclui Padrão)
         loadTemplate(chosen).then(() => {
-          if (chosen !== '0') {
-            updatePreviewForCurrentTemplate();
-          }
+          updatePreviewForCurrentTemplate();
         });
       });
     }
