@@ -231,6 +231,7 @@
     let logoImage = null;
     // let customLogoObjectUrl = null; // DESABILITADO TEMPORARIAMENTE
     let templateImage = null;
+    let previewObjectUrl = null;
     
     function computeAreaLuminance(ctx, x, y, w, h) {
       // Amostra alguns pontos dentro da área e calcula luminância média
@@ -321,7 +322,43 @@
         // fallback silencioso; o fundo ficará branco se falhar
         templateImage = null;
       });
+
+      // Gera pré-visualização dinâmica para templates 1-10
+      if (initialTemplate !== '0') {
+        updatePreviewForCurrentTemplate();
+      }
     });
+
+    function updatePreviewForCurrentTemplate() {
+      const selectEl = document.getElementById('templateSelect');
+      const chosen = (selectEl && selectEl.value) ? selectEl.value : '0';
+      const previewEl = document.getElementById('templatePreview');
+      const hint = document.getElementById('templatePreviewHint');
+      if (chosen === '0') {
+        // Padrão: imagem estática já configurada
+        return;
+      }
+      // Carrega template e renderiza uma imagem exemplo com cliente 'teste' e id 1
+      loadTemplate(chosen)
+        .then(() => generateImage('teste', 1))
+        .then(blob => {
+          if (previewObjectUrl) {
+            try { URL.revokeObjectURL(previewObjectUrl); } catch (e) {}
+            previewObjectUrl = null;
+          }
+          const url = URL.createObjectURL(blob);
+          previewObjectUrl = url;
+          if (previewEl) {
+            previewEl.src = url;
+          }
+          if (hint) hint.style.display = 'none';
+        })
+        .catch(() => {
+          // Se falhar, mantém a imagem do arquivo template
+          if (previewEl) previewEl.src = `/${chosen}.png`;
+          if (hint) hint.style.display = 'none';
+        });
+    }
 
     function loadTemplate(templateNumber) {
       return new Promise((resolve) => {
@@ -656,19 +693,16 @@
           const hint = document.getElementById('templatePreviewHint');
           if (hint) hint.style.display = 'none';
         } else {
-          if (previewEl) {
-            previewEl.src = `/${chosen}.png`;
-            previewEl.onerror = function() {
-              const hint = document.getElementById('templatePreviewHint');
-              if (hint) hint.style.display = 'block';
-            };
-          }
+          // Geração dinâmica do preview renderizado
           if (previewContainer) previewContainer.style.display = 'block';
           const hint = document.getElementById('templatePreviewHint');
           if (hint) hint.style.display = 'none';
         }
+        // Atualiza o template selecionado e renderiza preview dinâmico
         loadTemplate(chosen).then(() => {
-          // nada a fazer; geração usará templateImage se disponível
+          if (chosen !== '0') {
+            updatePreviewForCurrentTemplate();
+          }
         });
       });
     }
