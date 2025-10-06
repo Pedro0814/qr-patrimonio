@@ -439,10 +439,16 @@
 
         try {
           // Decide a cor do QR conforme o fundo sob a área do QR
-          // Retângulo do QR: x=3, y=121, w=659, h=659
+          // Retângulo base do QR
+          const selectElForQr = document.getElementById('templateSelect');
+          const chosenTemplateForQr = (selectElForQr && selectElForQr.value) ? selectElForQr.value : '1';
+          const isTemplate9 = chosenTemplateForQr === '9';
+          const qrX = 3;
+          const qrY = isTemplate9 ? 180 : 121; // empurra mais para baixo apenas no template 9
+          const qrSize = 659;
           let qrForeground = "black";
           try {
-            const bgLuma = computeAreaLuminance(ctx, 3 + 10, 121 + 10, 659 - 20, 659 - 20);
+            const bgLuma = computeAreaLuminance(ctx, qrX + 10, qrY + 10, qrSize - 20, qrSize - 20);
             // limiar: abaixo de ~170 consideramos fundo escuro
             if (bgLuma < 170) {
               qrForeground = "white";
@@ -451,11 +457,11 @@
             // se falhar medição, mantém preto
           }
 
-          const qr = new QRious({ value: qrData, size: 659, level: "L", foreground: qrForeground, background: "white", backgroundAlpha: 0 });
+          const qr = new QRious({ value: qrData, size: qrSize, level: "L", foreground: qrForeground, background: "white", backgroundAlpha: 0 });
           const qrImg = new Image();
 
           qrImg.onload = function () {
-            ctx.drawImage(qrImg, 3, 121, 659, 659);
+            ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
             // Centraliza "Patrimônio" e o número sob a marca no lado direito
             const rightPanelStartX = 700; // aprox. após o QR + margem
