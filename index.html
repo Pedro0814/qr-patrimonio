@@ -201,6 +201,7 @@
 
     <div class="template-preview" id="templatePreviewContainer">
       <img id="templatePreview" src="/1.png" alt="Prévia do template" style="width:240px; height:auto; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3);">
+      <div id="templatePreviewHint" style="font-size:12px; color:#666; margin-top:6px; display:none;">Prévia indisponível.</div>
     </div>
 
     <!-- Logo personalizada - DESABILITADO TEMPORARIAMENTE
@@ -306,10 +307,15 @@
       const previewEl = document.getElementById('templatePreview');
       const previewContainer = document.getElementById('templatePreviewContainer');
       if (initialTemplate === '0') {
-        if (previewContainer) previewContainer.style.display = 'none';
+        if (previewContainer) previewContainer.style.display = 'block';
+        if (previewEl) previewEl.src = `/padrao.png`;
+        const hint = document.getElementById('templatePreviewHint');
+        if (hint) hint.style.display = 'none';
       } else {
         if (previewEl) previewEl.src = `/${initialTemplate}.png`;
         if (previewContainer) previewContainer.style.display = 'block';
+        const hint = document.getElementById('templatePreviewHint');
+        if (hint) hint.style.display = 'none';
       }
       loadTemplate(initialTemplate).catch(() => {
         // fallback silencioso; o fundo ficará branco se falhar
@@ -639,13 +645,27 @@
         const previewEl = document.getElementById('templatePreview');
         const previewContainer = document.getElementById('templatePreviewContainer');
         if (chosen === '0') {
-          if (previewContainer) previewContainer.style.display = 'none';
+          if (previewEl) {
+            previewEl.src = `/padrao.png`;
+            previewEl.onerror = function() {
+              const hint = document.getElementById('templatePreviewHint');
+              if (hint) hint.style.display = 'block';
+            };
+          }
+          if (previewContainer) previewContainer.style.display = 'block';
+          const hint = document.getElementById('templatePreviewHint');
+          if (hint) hint.style.display = 'none';
         } else {
           if (previewEl) {
             previewEl.src = `/${chosen}.png`;
-            previewEl.onerror = function() { /* silencioso */ };
+            previewEl.onerror = function() {
+              const hint = document.getElementById('templatePreviewHint');
+              if (hint) hint.style.display = 'block';
+            };
           }
           if (previewContainer) previewContainer.style.display = 'block';
+          const hint = document.getElementById('templatePreviewHint');
+          if (hint) hint.style.display = 'none';
         }
         loadTemplate(chosen).then(() => {
           // nada a fazer; geração usará templateImage se disponível
