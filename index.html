@@ -457,22 +457,25 @@
           qrImg.onload = function () {
             ctx.drawImage(qrImg, 3, 121, 659, 659);
 
-            const patrimonioX = 835;
-            const patrimonioY = 570; // levemente mais acima do ajuste anterior (antes: 600)
+            // Centraliza "Patrimônio" e o número sob a marca no lado direito
+            const rightPanelStartX = 700; // aprox. após o QR + margem
+            const centerX = (rightPanelStartX + canvas.width) / 2;
+            const patrimonioY = 570; // mantém altura atual
             ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
             const patrimonioText = "Patrimônio";
             // Cor dinâmica do texto "Patrimônio" conforme o fundo
-            const patrimonioFontPx = 93; // apesar da fonte estar em 93px, mantemos para estimar altura
+            const patrimonioFontPx = 93; // tamanho da fonte usado para estimar área
+            const patrimonioWidth = ctx.measureText(patrimonioText).width;
+            const patrimonioX = centerX - (patrimonioWidth / 2);
             try {
-              const patrLuma = computeAreaLuminance(ctx, patrimonioX, patrimonioY - patrimonioFontPx, Math.max(1, ctx.measureText(patrimonioText).width), patrimonioFontPx + 10);
+              const patrLuma = computeAreaLuminance(ctx, patrimonioX, patrimonioY - patrimonioFontPx, Math.max(1, patrimonioWidth), patrimonioFontPx + 10);
               ctx.fillStyle = (patrLuma < 170) ? "white" : "black";
             } catch (e) {
               ctx.fillStyle = "black";
             }
-            ctx.fillText(patrimonioText, patrimonioX, patrimonioY);
-            const patrimonioWidth = ctx.measureText(patrimonioText).width;
+            ctx.fillText(patrimonioText, Math.floor(patrimonioX), patrimonioY);
 
             // Não desenha logo se um template de fundo estiver presente
             if (!templateImage && logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
@@ -492,7 +495,7 @@
             ctx.font = "bold 93px Inter";
             const idY = 710; // acompanha o deslocamento (antes: 740)
             const idWidth = ctx.measureText(idText).width;
-            const idX = patrimonioX + (patrimonioWidth - idWidth) / 2;
+            const idX = centerX - (idWidth / 2);
             // Cor dinâmica do número conforme o fundo
             const numberFontPx = 93;
             try {
@@ -501,7 +504,7 @@
             } catch (e) {
               ctx.fillStyle = "black";
             }
-            ctx.fillText(idText, idX, idY);
+            ctx.fillText(idText, Math.floor(idX), idY);
 
             const dataURL = canvas.toDataURL('image/png');
 
