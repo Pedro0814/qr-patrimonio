@@ -120,6 +120,13 @@
       }
     }
 
+    /* Pré-visualização do template */
+    .template-preview {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+    }
+
     /* Logo upload preview - DESABILITADO TEMPORARIAMENTE
     .logo-preview {
       display: none;
@@ -190,6 +197,10 @@
       <option value="9">Template 9</option>
       <option value="10">Template 10</option>
     </select>
+
+    <div class="template-preview">
+      <img id="templatePreview" src="1.png" alt="Prévia do template" style="width:240px; height:auto; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3);">
+    </div>
 
     <!-- Logo personalizada - DESABILITADO TEMPORARIAMENTE
     <label for="logoFile">🖼️ Logo personalizada (opcional):</label>
@@ -264,6 +275,10 @@
         selectEl.value = '1';
       }
       const initialTemplate = (selectEl && selectEl.value) ? selectEl.value : '1';
+      const previewEl = document.getElementById('templatePreview');
+      if (previewEl) {
+        previewEl.src = `${initialTemplate}.png`;
+      }
       loadTemplate(initialTemplate).catch(() => {
         // fallback silencioso; o fundo ficará branco se falhar
         templateImage = null;
@@ -533,6 +548,10 @@
     if (templateSelect) {
       templateSelect.addEventListener('change', () => {
         const chosen = templateSelect.value || '1';
+        const previewEl = document.getElementById('templatePreview');
+        if (previewEl) {
+          previewEl.src = `${chosen}.png`;
+        }
         loadTemplate(chosen).catch(() => {
           templateImage = null;
         });
