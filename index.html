@@ -231,6 +231,7 @@
     let logoImage = null;
     // let customLogoObjectUrl = null; // DESABILITADO TEMPORARIAMENTE
     let templateImage = null;
+    let defaultLogoImage = null; // sempre '/logo.png' para uso no modo Padrão
     let previewObjectUrl = null;
     
     function computeAreaLuminance(ctx, x, y, w, h) {
@@ -299,6 +300,34 @@
 
     window.addEventListener('load', loadDefaultLogo);
     window.addEventListener('load', () => {
+      // Precarrega a logo padrão independente de rota, para uso exclusivo no modo Padrão
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() { defaultLogoImage = img; };
+        img.onerror = function() { defaultLogoImage = null; };
+        img.src = '/logo.png';
+      } catch (e) { defaultLogoImage = null; }
+    });
+
+    function ensureDefaultLogoReady() {
+      return new Promise((resolve) => {
+        if (defaultLogoImage && defaultLogoImage.complete && defaultLogoImage.naturalWidth > 0) {
+          resolve(true);
+          return;
+        }
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = function() { defaultLogoImage = img; resolve(true); };
+          img.onerror = function() { resolve(false); };
+          img.src = '/logo.png';
+        } catch (e) {
+          resolve(false);
+        }
+      });
+    }
+    window.addEventListener('load', () => {
       // Inicializa o template padrão (1.png)
       const selectEl = document.getElementById('templateSelect');
       if (selectEl && !selectEl.value) {
@@ -334,7 +363,8 @@
       const previewEl = document.getElementById('templatePreview');
       const hint = document.getElementById('templatePreviewHint');
       // Carrega template (ou limpa se Padrão) e renderiza uma imagem exemplo com cliente 'teste' e id 1
-      loadTemplate(chosen)
+      const ensureLogo = (chosen === '0') ? ensureDefaultLogoReady() : Promise.resolve(true);
+      Promise.all([loadTemplate(chosen), ensureLogo])
         .then(() => generateImage('teste', 1))
         .then(blob => {
           if (previewObjectUrl) {
@@ -400,9 +430,9 @@
       const currentSrc = (templateImage && templateImage.src) ? templateImage.src : '';
       const expectedSuffix = `/${chosen}.png`;
       if (chosen === '0') {
-        // Padrão: sem template
+        // Padrão: sem template; garantir logo padrão pronta para desenhar
         if (templateImage !== null) templateImage = null;
-        return Promise.resolve(true);
+        return ensureDefaultLogoReady();
       }
       if (!currentSrc.endsWith(expectedSuffix)) {
         return loadTemplate(chosen);
@@ -541,17 +571,19 @@
             }
             ctx.fillText(patrimonioText, Math.floor(patrimonioX), patrimonioY);
 
-            // Não desenha logo se um template de fundo estiver presente
-            if (!templateImage && logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
+            // Logo: somente no modo Padrão (template 0) e sempre usando '/logo.png'
+            const selectElForLogo = document.getElementById('templateSelect');
+            const chosenTemplateForLogo = (selectElForLogo && selectElForLogo.value) ? selectElForLogo.value : '0';
+            if (chosenTemplateForLogo === '0' && defaultLogoImage && defaultLogoImage.complete && defaultLogoImage.naturalWidth > 0) {
               try {
                 const logoScale = 0.75;
-                const logoWidth = logoImage.naturalWidth * logoScale;
-                const logoHeight = logoImage.naturalHeight * logoScale;
+                const logoWidth = defaultLogoImage.naturalWidth * logoScale;
+                const logoHeight = defaultLogoImage.naturalHeight * logoScale;
                 const logoX = patrimonioX + (patrimonioWidth - logoWidth) / 2;
                 const logoY = 460 - logoHeight - 20;
-                ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
+                ctx.drawImage(defaultLogoImage, logoX, logoY, logoWidth, logoHeight);
               } catch (e) {
-                console.log('Erro ao desenhar logo, continuando sem logo');
+                console.log('Erro ao desenhar logo padrão');
               }
             }
 
