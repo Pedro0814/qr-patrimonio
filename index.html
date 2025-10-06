@@ -500,7 +500,8 @@
           const chosenTemplateForQr = (selectElForQr && selectElForQr.value) ? selectElForQr.value : '1';
           const isTemplate9 = chosenTemplateForQr === '9';
           const isTemplate5 = chosenTemplateForQr === '5';
-          const qrX = 42; // pequeno ajuste adicional para a direita
+          const isTemplate0 = chosenTemplateForQr === '0';
+          const qrX = isTemplate0 ? 54 : 42; // no Padrão empurra um pouco mais à direita
           const qrY = (isTemplate9 || isTemplate5) ? 180 : 121; // empurra mais para baixo nos templates 5 e 9
           const qrSize = 659;
           let qrForeground = "black";
