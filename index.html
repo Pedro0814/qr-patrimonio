@@ -260,6 +260,19 @@
       return count > 0 ? (total / count) : 255;
     }
 
+    // UUID v4 fallback (quando crypto.randomUUID não estiver disponível)
+    function generateUUIDv4() {
+      // Gera 36 chars no formato xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+      // y em [8, 9, a, b]
+      const hex = '0123456789abcdef';
+      const arr = new Array(36);
+      for (let i = 0; i < 36; i++) arr[i] = hex[Math.floor(Math.random() * 16)];
+      arr[14] = '4';
+      arr[19] = hex[(parseInt(arr[19], 16) & 0x3) | 0x8];
+      arr[8] = arr[13] = arr[18] = arr[23] = '-';
+      return arr.join('');
+    }
+
     function loadDefaultLogo() {
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
       const isEngenharia = pathname === '/engenhariadocorpo';
@@ -521,7 +534,10 @@
               }
             }
 
-        const qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
+        // Define o conteúdo do QR: URL fixa + UID aleatório
+        const FIXED_BASE_URL = 'https://public.trilogo.app/asset?uid=';
+        const uid = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : generateUUIDv4();
+        const qrData = `${FIXED_BASE_URL}${uid}`;
 
         try {
           // Decide a cor do QR conforme o fundo sob a área do QR
