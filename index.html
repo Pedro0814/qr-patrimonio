@@ -534,10 +534,20 @@
               }
             }
 
-        // Define o conteúdo do QR: URL fixa + UID aleatório
-        const FIXED_BASE_URL = 'https://public.trilogo.app/asset?uid=';
-        const uid = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : generateUUIDv4();
-        const qrData = `${FIXED_BASE_URL}${uid}`;
+        // Define o conteúdo do QR baseado na rota
+        const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
+        const isPublicoRoute = pathname === '/publico';
+        
+        let qrData;
+        if (isPublicoRoute) {
+          // Nova versão: URL fixa + UID aleatório
+          const FIXED_BASE_URL = 'https://public.trilogo.app/asset?uid=';
+          const uid = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : generateUUIDv4();
+          qrData = `${FIXED_BASE_URL}${uid}`;
+        } else {
+          // Versão original: JSON com client e id
+          qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
+        }
 
         try {
           // Decide a cor do QR conforme o fundo sob a área do QR
