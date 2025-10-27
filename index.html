@@ -353,6 +353,9 @@
       });
     }
     window.addEventListener('load', () => {
+      const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
+      const isEngenharia = pathname === '/engenhariadocorpo';
+      
       // Inicializa o template padrão (1.png)
       const selectEl = document.getElementById('templateSelect');
       if (selectEl && !selectEl.value) {
@@ -361,25 +364,33 @@
       const initialTemplate = (selectEl && selectEl.value) ? selectEl.value : '0';
       const previewEl = document.getElementById('templatePreview');
       const previewContainer = document.getElementById('templatePreviewContainer');
-      if (initialTemplate === '0') {
+      
+      if (isEngenharia) {
+        // Rota engenharia: gera preview fixo com patrimonio 1
         if (previewContainer) previewContainer.style.display = 'block';
-        // A prévia do padrão agora é gerada dinamicamente (fallback para padrao.png em erro)
-        if (previewEl) previewEl.src = `/padrao.png`;
-        const hint = document.getElementById('templatePreviewHint');
-        if (hint) hint.style.display = 'none';
+        if (previewEl) previewEl.src = `/padrao.png`; // placeholder enquanto gera
+        updatePreviewForCurrentTemplate();
       } else {
-        if (previewEl) previewEl.src = `/${initialTemplate}.png`;
-        if (previewContainer) previewContainer.style.display = 'block';
-        const hint = document.getElementById('templatePreviewHint');
-        if (hint) hint.style.display = 'none';
-      }
-      loadTemplate(initialTemplate).catch(() => {
-        // fallback silencioso; o fundo ficará branco se falhar
-        templateImage = null;
-      });
+        if (initialTemplate === '0') {
+          if (previewContainer) previewContainer.style.display = 'block';
+          // A prévia do padrão agora é gerada dinamicamente (fallback para padrao.png em erro)
+          if (previewEl) previewEl.src = `/padrao.png`;
+          const hint = document.getElementById('templatePreviewHint');
+          if (hint) hint.style.display = 'none';
+        } else {
+          if (previewEl) previewEl.src = `/${initialTemplate}.png`;
+          if (previewContainer) previewContainer.style.display = 'block';
+          const hint = document.getElementById('templatePreviewHint');
+          if (hint) hint.style.display = 'none';
+        }
+        loadTemplate(initialTemplate).catch(() => {
+          // fallback silencioso; o fundo ficará branco se falhar
+          templateImage = null;
+        });
 
-      // Gera pré-visualização dinâmica (inclui Padrão agora)
-      updatePreviewForCurrentTemplate();
+        // Gera pré-visualização dinâmica (inclui Padrão agora)
+        updatePreviewForCurrentTemplate();
+      }
     });
 
     function updatePreviewForCurrentTemplate() {
