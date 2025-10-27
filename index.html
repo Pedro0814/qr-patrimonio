@@ -597,19 +597,27 @@
             }
             ctx.fillText(patrimonioText, Math.floor(patrimonioX), patrimonioY);
 
-            // Logo: somente no modo Padrão (template 0) e sempre usando '/logo.png'
+            // Logo: desenha no modo Padrão OU quando usar logoImage (rota /engenhariadocorpo)
             const selectElForLogo = document.getElementById('templateSelect');
             const chosenTemplateForLogo = (selectElForLogo && selectElForLogo.value) ? selectElForLogo.value : '0';
-            if (chosenTemplateForLogo === '0' && defaultLogoImage && defaultLogoImage.complete && defaultLogoImage.naturalWidth > 0) {
+            const pathnameForLogo = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
+            const isEngenhariaRoute = pathnameForLogo === '/engenhariadocorpo';
+            
+            // Desenha se: modo Padrão OU rota engenharia (sem template)
+            const shouldDrawLogo = (chosenTemplateForLogo === '0' && defaultLogoImage && defaultLogoImage.complete && defaultLogoImage.naturalWidth > 0) ||
+                                   (isEngenhariaRoute && logoImage && logoImage.complete && logoImage.naturalWidth > 0);
+            
+            if (shouldDrawLogo) {
               try {
+                const logoToUse = isEngenhariaRoute ? logoImage : defaultLogoImage;
                 const logoScale = 0.75;
-                const logoWidth = defaultLogoImage.naturalWidth * logoScale;
-                const logoHeight = defaultLogoImage.naturalHeight * logoScale;
+                const logoWidth = logoToUse.naturalWidth * logoScale;
+                const logoHeight = logoToUse.naturalHeight * logoScale;
                 const logoX = patrimonioX + (patrimonioWidth - logoWidth) / 2;
                 const logoY = 460 - logoHeight - 20;
-                ctx.drawImage(defaultLogoImage, logoX, logoY, logoWidth, logoHeight);
+                ctx.drawImage(logoToUse, logoX, logoY, logoWidth, logoHeight);
               } catch (e) {
-                console.log('Erro ao desenhar logo padrão');
+                console.log('Erro ao desenhar logo');
               }
             }
 
