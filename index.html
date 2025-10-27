@@ -369,7 +369,10 @@
         // Rota engenharia: gera preview fixo com patrimonio 1
         if (previewContainer) previewContainer.style.display = 'block';
         if (previewEl) previewEl.src = `/padrao.png`; // placeholder enquanto gera
-        updatePreviewForCurrentTemplate();
+        // Pequeno delay para garantir que logoImage esteja carregado
+        setTimeout(() => {
+          updatePreviewForCurrentTemplate();
+        }, 100);
       } else {
         if (initialTemplate === '0') {
           if (previewContainer) previewContainer.style.display = 'block';
@@ -548,7 +551,7 @@
     function generateImage(client, identifier) {
       return new Promise((resolve, reject) => {
         const canvas = document.getElementById("previewCanvas");
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
         // Garante template carregado antes de desenhar
         ensureTemplateReady()
