@@ -395,13 +395,21 @@
 
     function updatePreviewForCurrentTemplate() {
       const selectEl = document.getElementById('templateSelect');
-      const chosen = (selectEl && selectEl.value) ? selectEl.value : '0';
+      const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
+      const isEngenharia = pathname === '/engenhariadocorpo';
+      
+      // Na rota engenharia, sempre usa template '0' (padrão)
+      const chosen = isEngenharia ? '0' : ((selectEl && selectEl.value) ? selectEl.value : '0');
       const previewEl = document.getElementById('templatePreview');
       const hint = document.getElementById('templatePreviewHint');
-      // Carrega template (ou limpa se Padrão) e renderiza uma imagem exemplo com cliente 'teste' e id 1
+      
+      // Carrega template (ou limpa se Padrão) e renderiza uma imagem exemplo
+      // Na rota engenharia usa cliente 'engenhariadocorpo', senão 'teste'
+      const clientForPreview = isEngenharia ? 'engenhariadocorpo' : 'teste';
+      
       const ensureLogo = (chosen === '0') ? ensureDefaultLogoReady() : Promise.resolve(true);
       Promise.all([loadTemplate(chosen), ensureLogo])
-        .then(() => generateImage('teste', 1))
+        .then(() => generateImage(clientForPreview, 1))
         .then(blob => {
           if (previewObjectUrl) {
             try { URL.revokeObjectURL(previewObjectUrl); } catch (e) {}
