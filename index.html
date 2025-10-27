@@ -410,7 +410,8 @@
       // Na rota engenharia usa cliente 'engenhariadocorpo', senão 'teste'
       const clientForPreview = isEngenharia ? 'engenhariadocorpo' : 'teste';
       
-      const ensureLogo = (chosen === '0') ? ensureDefaultLogoReady() : Promise.resolve(true);
+      // Na rota engenharia não usa ensureLogo (usa logoImage diretamente)
+      const ensureLogo = isEngenharia ? Promise.resolve(true) : ((chosen === '0') ? ensureDefaultLogoReady() : Promise.resolve(true));
       Promise.all([loadTemplate(chosen), ensureLogo])
         .then(() => generateImage(clientForPreview, 1))
         .then(blob => {
