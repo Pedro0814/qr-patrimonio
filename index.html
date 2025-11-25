@@ -381,6 +381,7 @@
         templateSection.style.display = 'block';
       }
       
+      let logoPromise;
       switch(mode) {
         case 'engenharia':
           if (clientInput) {
@@ -391,11 +392,7 @@
             templateSection.style.display = 'none';
           }
           // Carrega logo engenharia
-          loadLogoForMode('engenharia');
-          // Atualiza preview após um pequeno delay
-          setTimeout(() => {
-            updatePreviewForCurrentTemplate();
-          }, 200);
+          logoPromise = loadLogoForMode('engenharia');
           break;
           
         case 'publico':
@@ -404,10 +401,7 @@
             clientInput.readOnly = true;
           }
           // Mantém template visível
-          loadLogoForMode('default');
-          setTimeout(() => {
-            updatePreviewForCurrentTemplate();
-          }, 200);
+          logoPromise = loadLogoForMode('default');
           break;
           
         case 'patrimonio':
@@ -416,10 +410,7 @@
             clientInput.value = '';
             clientInput.readOnly = false;
           }
-          loadLogoForMode('default');
-          setTimeout(() => {
-            updatePreviewForCurrentTemplate();
-          }, 200);
+          logoPromise = loadLogoForMode('default');
           break;
           
         case 'outro':
@@ -428,26 +419,40 @@
             clientInput.value = '';
             clientInput.readOnly = false;
           }
-          loadLogoForMode('default');
+          logoPromise = loadLogoForMode('default');
           break;
       }
+
+      // Atualiza preview assim que o logo necessário estiver pronto
+      Promise.resolve(logoPromise)
+        .then(() => {
+          updatePreviewForCurrentTemplate();
+        })
+        .catch(() => {
+          updatePreviewForCurrentTemplate();
+        });
     }
 
     function loadLogoForMode(mode) {
-      const logoSrc = (mode === 'engenharia') ? 'engenharia.png' : 'logo.png';
-      
-      // Carrega a imagem utilizada no canvas
-      logoImage = new Image();
-      logoImage.crossOrigin = 'anonymous';
-      logoImage.onload = function() {
-        console.log('Logo carregada com sucesso para modo:', mode);
-      };
-      logoImage.onerror = function() {
-        console.log('Erro ao carregar logo para modo:', mode);
-        logoImage = null;
-      };
-      // Garantir caminho absoluto para funcionar em subrotas
-      logoImage.src = logoSrc.startsWith('/') ? logoSrc : `/${logoSrc}`;
+      if (mode === 'engenharia') {
+        return new Promise((resolve) => {
+          const logoSrc = 'engenharia.png';
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = function() {
+            logoImage = img;
+            resolve(true);
+          };
+          img.onerror = function() {
+            console.log('Erro ao carregar logo para modo engenharia');
+            logoImage = null;
+            resolve(false);
+          };
+          img.src = logoSrc.startsWith('/') ? logoSrc : `/${logoSrc}`;
+        });
+      }
+      // Outros modos usam a logo padrão desenhada por defaultLogoImage
+      return ensureDefaultLogoReady();
     }
     
     function computeAreaLuminance(ctx, x, y, w, h) {
