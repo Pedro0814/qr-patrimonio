@@ -633,10 +633,12 @@
       const chosen = isEngenharia ? '0' : ((selectEl && selectEl.value) ? selectEl.value : '0');
       const previewEl = document.getElementById('templatePreview');
       const hint = document.getElementById('templatePreviewHint');
+      const clientInput = document.getElementById('client');
+      const clientValue = (clientInput && clientInput.value.trim()) ? clientInput.value.trim() : 'teste';
       
       // Carrega template (ou limpa se Padrão) e renderiza uma imagem exemplo
-      // Na rota engenharia usa cliente 'engenhariadocorpo', senão 'teste'
-      const clientForPreview = isEngenharia ? 'engenhariadocorpo' : 'teste';
+      // Na rota engenharia usa cliente 'engenhariadocorpo', senão o valor atual do input
+      const clientForPreview = isEngenharia ? 'engenhariadocorpo' : clientValue;
       
       // Na rota engenharia não usa ensureLogo (usa logoImage diretamente)
       const ensureLogo = isEngenharia ? Promise.resolve(true) : ((chosen === '0') ? ensureDefaultLogoReady() : Promise.resolve(true));
