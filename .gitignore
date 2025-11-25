@@ -1,0 +1,10 @@
+# Ignore everything except project files
+*
+!.gitignore
+!index.html
+!vercel.json
+!*.png
+!*.jpg
+!*.jpeg
+!*.svg
+
