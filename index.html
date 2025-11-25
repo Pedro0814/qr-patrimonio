@@ -579,14 +579,16 @@
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
       const hash = (window.location && window.location.hash) ? window.location.hash.substring(1).toLowerCase() : '';
       const isEngenharia = hash === 'engenharia' || pathname === '/engenhariadocorpo';
+      const hashModeList = ['patrimonio', 'engenharia', 'publico', 'outro'];
       
       // Inicialização baseada em hash - se houver hash, abre o gerador no modo correspondente
-      if (hash && ['patrimonio', 'engenharia', 'publico', 'outro'].includes(hash)) {
+      if (hash && hashModeList.includes(hash)) {
         openGeneratorWithMode(hash);
-      } else {
-        // Sem hash: mostra dashboard
-        showDashboard();
+        return; // evita disparar inicialização duplicada antes dos presets terminarem
       }
+      
+      // Sem hash: mostra dashboard por padrão
+      showDashboard();
       
       // Inicializa o template padrão (1.png)
       const selectEl = document.getElementById('templateSelect');
