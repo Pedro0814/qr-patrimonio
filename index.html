@@ -361,13 +361,11 @@
         <div class="instruction">Quantidade de dígitos do patrimônio. Ex: 3 → 001, 002...</div>
         <input type="number" id="of_digits" value="3" min="1" max="10" />
 
-        <label for="of_baseUrl">🔗 Base URL para QR Content:</label>
+        <label>🔗 Base URL para QR Content:</label>
         <div class="instruction">
-          Use <code>{id}</code> como placeholder ou deixe com um sufixo como <code>?id=</code>.<br/>
-          Exemplos: <code>https://meuservico.app/p?id=</code> → <code>...id=&lt;guid&gt;</code> |
-          <code>https://meuservico.app/p/{id}</code> → <code>{id}</code> será substituído pelo GUID.
+          Esta funcionalidade usa automaticamente a mesma URL pública do modo <strong>Público</strong>:<br/>
+          <code>https://public.trilogo.app/asset?uid=&lt;guid&gt;</code>
         </div>
-        <input type="text" id="of_baseUrl" placeholder="Ex: https://meuservico.app/p?id=" />
 
         <button id="of_generateBtn">📥 Gerar Excel</button>
         <button id="of_previewBtn" type="button">👁️ Visualizar 5 primeiros</button>
@@ -1069,7 +1067,6 @@
       const start = parseInt(document.getElementById('of_start').value, 10);
       const end = parseInt(document.getElementById('of_end').value, 10);
       const digits = parseInt(document.getElementById('of_digits').value, 10);
-      const baseUrl = (document.getElementById('of_baseUrl').value || '').trim();
       const infoEl = document.getElementById('of_info');
 
       if (infoEl) infoEl.textContent = '';
@@ -1090,10 +1087,6 @@
         alert('O campo Dígitos deve estar entre 1 e 10.');
         return null;
       }
-      if (!baseUrl) {
-        alert('Informe a Base URL para montar o QR Content.');
-        return null;
-      }
 
       const count = end - start + 1;
       if (count > 10000) {
@@ -1109,27 +1102,20 @@
         infoEl.textContent = `Será gerada uma lista com ${count} linhas.`;
       }
 
-      return { client, start, end, digits, baseUrl, count };
+      return { client, start, end, digits, count };
     }
 
     function buildExcelRows(config, maxRows) {
       const rows = [['Patrimonio', 'QR Content']];
       const limit = maxRows ? Math.min(config.end, config.start + maxRows - 1) : config.end;
+      const FIXED_BASE_URL = 'https://public.trilogo.app/asset?uid=';
 
       for (let i = config.start; i <= limit; i++) {
         const patrimonio = String(i).padStart(config.digits, '0');
         const guid = generateUUID();
 
-        let qrContent;
-        if (config.baseUrl.includes('{id}')) {
-          // Caso especial: placeholder {id} é substituído pelo GUID
-          qrContent = config.baseUrl.replace('{id}', guid);
-        } else {
-          // Caso geral: apenas concatena baseUrl + GUID
-          // Recomenda-se que a baseUrl termine com "?id=" ou similar,
-          // mas aqui não forçamos nenhuma forma específica.
-          qrContent = config.baseUrl + guid;
-        }
+        // Usa sempre a mesma base pública do modo "Público"
+        const qrContent = `${FIXED_BASE_URL}${guid}`;
 
         rows.push([patrimonio, qrContent]);
       }
@@ -1152,7 +1138,7 @@
 
         // Ajuste simples de largura de colunas
         const patrimonioColWidth = Math.max(10, config.digits + 2);
-        const baseLen = config.baseUrl.length || 10;
+        const baseLen = 40; // comprimento aproximado da URL pública fixa
         const qrColWidth = Math.max(30, baseLen + 10);
         ws['!cols'] = [{ wch: patrimonioColWidth }, { wch: qrColWidth }];
 
