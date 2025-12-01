@@ -267,8 +267,8 @@
         <p>Geração de QR codes para tickets públicos</p>
       </div>
       <div class="dashboard-card" data-mode="outro" onclick="openGeneratorWithMode('outro')">
-        <h3>⚙️ Outra funcionalidade</h3>
-        <p>Modo reservado para outras funcionalidades</p>
+        <h3>🎨 Criar arte personalizada</h3>
+        <p>Gere a planilha com o conteúdo de cada QR Code (URL + GUID) para usar no seu próprio design.</p>
       </div>
     </div>
   </div>
@@ -869,10 +869,10 @@
         
         let qrData;
         if (isPublicoRoute) {
-          // Nova versão: URL fixa + UID aleatório
+          // Nova versão: URL fixa + GUID aleatório (UUID v4) - parâmetro na URL é 'uid' mas o valor é GUID
           const FIXED_BASE_URL = 'https://public.trilogo.app/asset?uid=';
-          const uid = generateUUID();
-          qrData = `${FIXED_BASE_URL}${uid}`;
+          const guid = generateUUID();
+          qrData = `${FIXED_BASE_URL}${guid}`;
         } else {
           // Versão original: JSON com client e id
           qrData = JSON.stringify({ data: { type: 0, id: identifier, client: client } });
@@ -1114,7 +1114,7 @@
         const patrimonio = String(i).padStart(config.digits, '0');
         const guid = generateUUID();
 
-        // Usa sempre a mesma base pública do modo "Público"
+        // Usa sempre a mesma base pública do modo "Público" - parâmetro na URL é 'uid' mas o valor gerado é GUID (UUID v4)
         const qrContent = `${FIXED_BASE_URL}${guid}`;
 
         rows.push([patrimonio, qrContent]);
