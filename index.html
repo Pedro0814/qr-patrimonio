@@ -130,9 +130,48 @@
     
     /* Dashboard (cards de modos) */
     #dashboard {
-      max-width: 1040px;
+      max-width: 1200px;
       margin: 48px auto 56px;
       padding: 0 24px;
+    }
+
+    .dashboard-content-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 48px;
+      justify-content: center;
+    }
+
+    .dashboard-character {
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 280px;
+      padding-top: 20px;
+    }
+
+    .dashboard-character img {
+      width: 100%;
+      height: auto;
+      max-width: 280px;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.5));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .dashboard-cards-wrapper {
+      flex: 1;
+      min-width: 0;
     }
 
     .dashboard-header {
@@ -188,9 +227,6 @@
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 32px;
       margin-top: 32px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     .dashboard-card {
@@ -279,6 +315,23 @@
       background-color: #555;
     }
 
+    @media (max-width: 1024px) {
+      .dashboard-content-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+      }
+
+      .dashboard-character {
+        width: 220px;
+        padding-top: 0;
+      }
+
+      .dashboard-character img {
+        max-width: 220px;
+      }
+    }
+
     @media (max-width: 768px) {
       #dashboard {
         margin: 28px auto 40px;
@@ -291,6 +344,14 @@
 
       .dashboard-cards {
         grid-template-columns: 1fr;
+      }
+
+      .dashboard-character {
+        width: 180px;
+      }
+
+      .dashboard-character img {
+        max-width: 180px;
       }
     }
 
@@ -343,7 +404,12 @@
       <h1>Escolha o tipo de QR Code que você precisa gerar</h1>
       <p>Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.</p>
     </div>
-    <div class="dashboard-cards">
+    <div class="dashboard-content-wrapper">
+      <div class="dashboard-character">
+        <img src="Manuzinha.png" alt="Assistente virtual">
+      </div>
+      <div class="dashboard-cards-wrapper">
+        <div class="dashboard-cards">
       <!-- Card QR Code Patrimonial - COMENTADO (mantido no código para referência futura)
       <div class="dashboard-card" data-mode="patrimonio" onclick="openGeneratorWithMode('patrimonio')">
         <div class="dashboard-card-icon">📦</div>
@@ -361,6 +427,8 @@
         <div class="dashboard-card-icon">🎨</div>
         <h3>Criar arte personalizada</h3>
         <p>Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.</p>
+      </div>
+        </div>
       </div>
     </div>
   </div>
