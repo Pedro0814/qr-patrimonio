@@ -185,9 +185,12 @@
 
     .dashboard-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
       margin-top: 32px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .dashboard-card {
@@ -341,16 +344,14 @@
       <p>Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.</p>
     </div>
     <div class="dashboard-cards">
+      <!-- Card QR Code Patrimonial - COMENTADO (mantido no código para referência futura)
       <div class="dashboard-card" data-mode="patrimonio" onclick="openGeneratorWithMode('patrimonio')">
         <div class="dashboard-card-icon">📦</div>
         <h3>QR Code Patrimonial</h3>
         <p>Gere artes de QR Codes para identificação de bens patrimoniais.</p>
       </div>
-      <div class="dashboard-card" data-mode="engenharia" onclick="openGeneratorWithMode('engenharia')">
-        <div class="dashboard-card-icon">🔧</div>
-        <h3>Engenharia do Corpo</h3>
-        <p>Geração de QR Codes no layout exclusivo da Engenharia do Corpo.</p>
-      </div>
+      -->
+      <!-- Card Engenharia do Corpo - REMOVIDO DO DASHBOARD (disponível apenas via URL /engenhariadocorpo) -->
       <div class="dashboard-card" data-mode="publico" onclick="openGeneratorWithMode('publico')">
         <div class="dashboard-card-icon">🎫</div>
         <h3>QR Code para Bem Público</h3>
@@ -547,7 +548,21 @@
           });
           break;
           
+        // Case 'patrimonio' - COMENTADO (mantido no código para referência futura)
+        /*
         case 'patrimonio':
+        case 'default':
+          if (qrSection) qrSection.style.display = 'block';
+          if (otherSection) otherSection.style.display = 'none';
+          if (clientInput) {
+            clientInput.value = '';
+            clientInput.readOnly = false;
+          }
+          loadLogoForMode('default').then(() => {
+            updatePreviewForCurrentTemplate();
+          });
+          break;
+        */
         case 'default':
           if (qrSection) qrSection.style.display = 'block';
           if (otherSection) otherSection.style.display = 'none';
@@ -726,9 +741,17 @@
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '/';
       const hash = (window.location && window.location.hash) ? window.location.hash.substring(1).toLowerCase() : '';
       const isEngenharia = hash === 'engenharia' || pathname === '/engenhariadocorpo';
-      const hashModeList = ['patrimonio', 'engenharia', 'publico', 'outro'];
+      // Hash modes disponíveis no dashboard: apenas 'publico' e 'outro'
+      // 'patrimonio' e 'engenharia' removidos do dashboard, mas engenharia ainda funciona via /engenhariadocorpo
+      const hashModeList = ['publico', 'outro'];
       
-      // Inicialização baseada em hash - se houver hash, abre o gerador no modo correspondente
+      // Se acessar via pathname /engenhariadocorpo, abre em modo engenharia
+      if (pathname === '/engenhariadocorpo') {
+        openGeneratorWithMode('engenharia');
+        return;
+      }
+      
+      // Inicialização baseada em hash - se houver hash válido do dashboard, abre o gerador
       if (hash && hashModeList.includes(hash)) {
         openGeneratorWithMode(hash);
         return; // evita disparar inicialização duplicada antes dos presets terminarem
@@ -1321,13 +1344,15 @@
     }
 
     // Listener para mudanças de hash (navegação direta via URL)
+    // Nota: 'patrimonio' e 'engenharia' removidos do dashboard, mas engenharia ainda funciona via /engenhariadocorpo
     window.addEventListener('hashchange', () => {
       const hash = (window.location && window.location.hash) ? window.location.hash.substring(1).toLowerCase() : '';
-      if (hash && ['patrimonio', 'engenharia', 'publico', 'outro'].includes(hash)) {
+      if (hash && ['publico', 'outro'].includes(hash)) {
         openGeneratorWithMode(hash);
       } else if (!hash) {
         showDashboard();
       }
+      // Engenharia ainda funciona via pathname /engenhariadocorpo (verificado em loadDefaultLogo e outros lugares)
     });
   </script>
 
