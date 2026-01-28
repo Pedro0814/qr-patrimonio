@@ -1050,10 +1050,13 @@
         const logoImage = await pdfDoc.embedPng(logoBytes);
 
         // Regras de posicionamento em pontos (pt)
-        const LOGO_TARGET_WIDTH = 28.2667;
-        const LOGO_TARGET_HEIGHT = 28.2667;
-        const BASE_X = 106.0001;
-        const BASE_Y_TOP = 75.6135;
+        // Ajuste visual: aumentamos o tamanho alvo e refinamos o posicionamento base.
+        // Importante: BASE_X / BASE_Y_TOP representam o CANTO SUPERIOR ESQUERDO da "caixa" da logo
+        // (medidos a partir do topo da página), e a logo é centralizada dentro dessa caixa mantendo proporção.
+        const LOGO_TARGET_WIDTH = 52;   // ~45–55 (maior e mais legível)
+        const LOGO_TARGET_HEIGHT = 52;  // caixa quadrada, mantendo proporção do PNG
+        const BASE_X = 106.0001;        // ajuste fino aqui, se necessário
+        const BASE_Y_TOP = 75.6135;     // ajuste fino aqui, se necessário (a partir do topo)
         const COL_OFFSET = 160.4136;
         // Assumimos grid quadrado: offset vertical igual ao horizontal
         const ROW_OFFSET = 160.4136;
@@ -1079,16 +1082,19 @@
 
         if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 1 (grade 3x3)...';
 
-        // Coords são recebidas como se a origem fosse no canto superior esquerdo.
-        // Precisamos converter para coordenadas PDF (origem no canto inferior esquerdo).
+        // Coords BASE_* são definidos a partir do topo (top-left).
+        // Convertendo para coordenadas PDF (origem no canto inferior esquerdo).
         for (let row = 0; row < 3; row++) {
           for (let col = 0; col < 3; col++) {
-            const centerX = BASE_X + COL_OFFSET * col;
-            const centerYTop = BASE_Y_TOP + ROW_OFFSET * row;
-            const centerY = firstPageHeight - centerYTop;
+            const boxTopLeftX = BASE_X + COL_OFFSET * col;
+            const boxTopLeftYTop = BASE_Y_TOP + ROW_OFFSET * row; // distância a partir do topo
 
-            const drawX = centerX - drawWidth / 2;
-            const drawY = centerY - drawHeight / 2;
+            const boxTopY = firstPageHeight - boxTopLeftYTop;
+            const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
+
+            // Centraliza a imagem dentro da caixa alvo, mantendo proporção
+            const drawX = boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+            const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
             firstPage.drawImage(logoImage, {
               x: drawX,
@@ -1105,12 +1111,14 @@
           const secondPage = pages[1];
           const secondPageHeight = secondPage.getHeight();
 
-          const centerX = BASE_X;
-          const centerYTop = BASE_Y_TOP;
-          const centerY = secondPageHeight - centerYTop;
+          const boxTopLeftX = BASE_X;
+          const boxTopLeftYTop = BASE_Y_TOP;
 
-          const drawX = centerX - drawWidth / 2;
-          const drawY = centerY - drawHeight / 2;
+          const boxTopY = secondPageHeight - boxTopLeftYTop;
+          const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
+
+          const drawX = boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+          const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
           secondPage.drawImage(logoImage, {
             x: drawX,
