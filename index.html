@@ -8,6 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Biblioteca para manipulação de PDF apenas no front-end -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -541,6 +543,45 @@
     </div>
   </div>
 
+  <!-- Aplicar logo em PDF (rota /aplicar-logo-pdf) -->
+  <div id="pdfLogoApp" style="display:none">
+    <div class="container">
+      <button class="back-button" onclick="showDashboard()">← Voltar ao Dashboard</button>
+
+      <div class="logo-internal">
+        <img src="logo.png" alt="Logo Trílogo">
+      </div>
+
+      <div class="header">
+        <h1>🧾 Aplicar logo em PDF</h1>
+        <p>Envie um PNG e gere um PDF com a logo aplicada em todas as artes.</p>
+      </div>
+
+      <label for="pdfLogoFileInput">🖼️ Logo em PNG:</label>
+      <div class="instruction">
+        Envie um arquivo PNG. A imagem será redimensionada para o tamanho padrão e aplicada automaticamente nas artes do PDF base.
+      </div>
+      <input
+        type="file"
+        id="pdfLogoFileInput"
+        accept="image/png"
+      />
+
+      <button id="pdfLogoGenerateBtn">📄 Gerar PDF com logo</button>
+
+      <div class="progress" id="pdfLogoProgress">
+        <p id="pdfLogoProgressText">Aguardando envio da logo.</p>
+      </div>
+
+      <div class="instruction" style="margin-top:16px;">
+        • O PDF base deve estar disponível em <code>/base.pdf</code> no mesmo diretório deste arquivo.<br/>
+        • Página 1: grade 3x3 (9 artes).<br/>
+        • Página 2: utiliza a mesma posição da primeira arte da página 1.<br/>
+        • Esta é a primeira versão da funcionalidade, pensada para ser expandida futuramente.
+      </div>
+    </div>
+  </div>
+
   <canvas id="previewCanvas" width="1600" height="900"></canvas>
 
   <script>
@@ -550,11 +591,14 @@
     let defaultLogoImage = null; // sempre '/logo.png' para uso no modo Padrão
     let previewObjectUrl = null;
     let currentMode = null; // armazena o modo atual
+    const PDF_LOGO_ROUTE = '/aplicar-logo-pdf';
 
     // Funções de navegação do dashboard
     function showDashboard() {
       document.getElementById('dashboard').style.display = 'block';
       document.getElementById('appGenerator').style.display = 'none';
+      const pdfLogoApp = document.getElementById('pdfLogoApp');
+      if (pdfLogoApp) pdfLogoApp.style.display = 'none';
       currentMode = null;
       window.location.hash = '';
     }
@@ -565,6 +609,8 @@
       
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('appGenerator').style.display = 'block';
+      const pdfLogoApp = document.getElementById('pdfLogoApp');
+      if (pdfLogoApp) pdfLogoApp.style.display = 'none';
       
       // Aplica presets conforme o modo
       applyModePreset(mode);
@@ -653,6 +699,16 @@
           }
           break;
       }
+    }
+
+    // Exibe a tela de aplicação de logo no PDF
+    function showPdfLogoApp() {
+      const dashboard = document.getElementById('dashboard');
+      const appGenerator = document.getElementById('appGenerator');
+      const pdfLogoApp = document.getElementById('pdfLogoApp');
+      if (dashboard) dashboard.style.display = 'none';
+      if (appGenerator) appGenerator.style.display = 'none';
+      if (pdfLogoApp) pdfLogoApp.style.display = 'block';
     }
 
     function loadLogoForMode(mode) {
@@ -813,6 +869,12 @@
       // 'patrimonio' e 'engenharia' removidos do dashboard, mas engenharia ainda funciona via /engenhariadocorpo
       const hashModeList = ['publico', 'outro'];
       
+      // Rota exclusiva para aplicação de logo em PDF
+      if (pathname === PDF_LOGO_ROUTE) {
+        showPdfLogoApp();
+        return;
+      }
+      
       // Se acessar via pathname /engenhariadocorpo, abre em modo engenharia
       if (pathname === '/engenhariadocorpo') {
         openGeneratorWithMode('engenharia');
@@ -937,6 +999,155 @@
           resolve(false);
         }
       });
+    }
+
+    // =========================
+    // NOVA FUNCIONALIDADE: APLICAR LOGO EM PDF BASE
+    // =========================
+
+    async function applyLogoToPdf() {
+      if (typeof PDFLib === 'undefined' || !PDFLib.PDFDocument) {
+        alert('Biblioteca de manipulação de PDF não carregada.');
+        return;
+      }
+
+      const fileInput = document.getElementById('pdfLogoFileInput');
+      const progressEl = document.getElementById('pdfLogoProgress');
+      const progressTextEl = document.getElementById('pdfLogoProgressText');
+      const generateBtn = document.getElementById('pdfLogoGenerateBtn');
+
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert('Envie um arquivo PNG antes de gerar o PDF.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      if (!/\.png$/i.test(file.name || '')) {
+        alert('Apenas arquivos PNG são suportados nesta primeira versão.');
+        return;
+      }
+
+      if (progressEl) progressEl.style.display = 'block';
+      if (progressTextEl) progressTextEl.textContent = 'Carregando PDF base e logo...';
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Gerando...';
+      }
+
+      try {
+        // Lê PDF base a partir do caminho fixo /base.pdf (não altera o original)
+        const basePdfResponse = await fetch('/base.pdf');
+        if (!basePdfResponse.ok) {
+          throw new Error('Não foi possível carregar o PDF base em /base.pdf.');
+        }
+        const basePdfBytes = await basePdfResponse.arrayBuffer();
+
+        const { PDFDocument } = PDFLib;
+        const pdfDoc = await PDFDocument.load(basePdfBytes);
+
+        // Lê logo enviada pelo usuário
+        const logoBytes = await file.arrayBuffer();
+        const logoImage = await pdfDoc.embedPng(logoBytes);
+
+        // Regras de posicionamento em pontos (pt)
+        const LOGO_TARGET_WIDTH = 28.2667;
+        const LOGO_TARGET_HEIGHT = 28.2667;
+        const BASE_X = 106.0001;
+        const BASE_Y_TOP = 75.6135;
+        const COL_OFFSET = 160.4136;
+        // Assumimos grid quadrado: offset vertical igual ao horizontal
+        const ROW_OFFSET = 160.4136;
+
+        // Mantém proporção da imagem dentro do retângulo alvo
+        const logoIntrinsicWidth = logoImage.width;
+        const logoIntrinsicHeight = logoImage.height;
+        const scale = Math.min(
+          LOGO_TARGET_WIDTH / logoIntrinsicWidth,
+          LOGO_TARGET_HEIGHT / logoIntrinsicHeight
+        );
+        const drawWidth = logoIntrinsicWidth * scale;
+        const drawHeight = logoIntrinsicHeight * scale;
+
+        // Página 1: grid 3x3
+        const pages = pdfDoc.getPages();
+        if (!pages || pages.length === 0) {
+          throw new Error('PDF base não possui páginas.');
+        }
+
+        const firstPage = pages[0];
+        const firstPageHeight = firstPage.getHeight();
+
+        if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 1 (grade 3x3)...';
+
+        // Coords são recebidas como se a origem fosse no canto superior esquerdo.
+        // Precisamos converter para coordenadas PDF (origem no canto inferior esquerdo).
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            const centerX = BASE_X + COL_OFFSET * col;
+            const centerYTop = BASE_Y_TOP + ROW_OFFSET * row;
+            const centerY = firstPageHeight - centerYTop;
+
+            const drawX = centerX - drawWidth / 2;
+            const drawY = centerY - drawHeight / 2;
+
+            firstPage.drawImage(logoImage, {
+              x: drawX,
+              y: drawY,
+              width: drawWidth,
+              height: drawHeight
+            });
+          }
+        }
+
+        // Página 2: mesma posição da primeira arte da página 1
+        if (pages.length >= 2) {
+          if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 2...';
+          const secondPage = pages[1];
+          const secondPageHeight = secondPage.getHeight();
+
+          const centerX = BASE_X;
+          const centerYTop = BASE_Y_TOP;
+          const centerY = secondPageHeight - centerYTop;
+
+          const drawX = centerX - drawWidth / 2;
+          const drawY = centerY - drawHeight / 2;
+
+          secondPage.drawImage(logoImage, {
+            x: drawX,
+            y: drawY,
+            width: drawWidth,
+            height: drawHeight
+          });
+        }
+
+        if (progressTextEl) progressTextEl.textContent = 'Gerando PDF final para download...';
+
+        const modifiedPdfBytes = await pdfDoc.save();
+        const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'pdf_com_logo.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 5000);
+
+        if (progressTextEl) progressTextEl.textContent = 'PDF gerado com sucesso.';
+      } catch (e) {
+        console.error(e);
+        alert(e.message || 'Erro ao gerar o PDF com a logo. Tente novamente.');
+        if (progressTextEl) progressTextEl.textContent = 'Ocorreu um erro ao gerar o PDF.';
+      } finally {
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.textContent = '📄 Gerar PDF com logo';
+        }
+      }
     }
 
     function ensureTemplateReady() {
@@ -1408,6 +1619,15 @@
       ofPreviewBtn.addEventListener('click', (e) => {
         e.preventDefault();
         previewExcelList();
+      });
+    }
+
+    // Evento para geração do PDF com logo
+    const pdfLogoGenerateBtn = document.getElementById('pdfLogoGenerateBtn');
+    if (pdfLogoGenerateBtn) {
+      pdfLogoGenerateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        applyLogoToPdf();
       });
     }
 
