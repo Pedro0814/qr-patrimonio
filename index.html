@@ -1049,6 +1049,26 @@
         const logoBytes = await file.arrayBuffer();
         const logoImage = await pdfDoc.embedPng(logoBytes);
 
+        function getPageBox(page) {
+          // Alguns PDFs usam CropBox/MediaBox com offset (x/y != 0).
+          // Se ignorarmos isso, coordenadas vindas do Illustrator podem "deslocar" entre linhas/colunas.
+          try {
+            if (page && typeof page.getCropBox === 'function') {
+              const crop = page.getCropBox();
+              if (crop && typeof crop.width === 'number' && typeof crop.height === 'number') return crop;
+            }
+          } catch (e) {}
+          try {
+            if (page && typeof page.getMediaBox === 'function') {
+              const media = page.getMediaBox();
+              if (media && typeof media.width === 'number' && typeof media.height === 'number') return media;
+            }
+          } catch (e) {}
+          const width = page.getWidth ? page.getWidth() : 0;
+          const height = page.getHeight ? page.getHeight() : 0;
+          return { x: 0, y: 0, width, height };
+        }
+
         // Regras de posicionamento em pontos (pt)
         // Ajuste visual: aumentamos o tamanho alvo e refinamos o posicionamento base.
         // Importante: BASE_X / BASE_Y_TOP representam o CANTO SUPERIOR ESQUERDO da "caixa" da logo
@@ -1077,9 +1097,9 @@
         }
 
         const firstPage = pages[0];
-        const firstPageHeight = firstPage.getHeight();
+        const firstPageBox = getPageBox(firstPage);
 
-        if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 1 (grade 3x3)...';
+        if (progressTextEl) progressTextEl.textContent = `Aplicando logo na página 1 (grade 3x3)... (40pt, offsetY ${ROW_OFFSET})`;
 
         // Coords BASE_* são definidos a partir do topo (top-left).
         // Convertendo para coordenadas PDF (origem no canto inferior esquerdo).
@@ -1088,11 +1108,11 @@
             const boxTopLeftX = BASE_X + COL_OFFSET * col;
             const boxTopLeftYTop = BASE_Y_TOP + ROW_OFFSET * row; // distância a partir do topo
 
-            const boxTopY = firstPageHeight - boxTopLeftYTop;
+            const boxTopY = firstPageBox.y + firstPageBox.height - boxTopLeftYTop;
             const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
 
             // Centraliza a imagem dentro da caixa alvo, mantendo proporção
-            const drawX = boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+            const drawX = firstPageBox.x + boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
             const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
             firstPage.drawImage(logoImage, {
@@ -1108,15 +1128,15 @@
         if (pages.length >= 2) {
           if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 2...';
           const secondPage = pages[1];
-          const secondPageHeight = secondPage.getHeight();
+          const secondPageBox = getPageBox(secondPage);
 
           const boxTopLeftX = BASE_X;
           const boxTopLeftYTop = BASE_Y_TOP;
 
-          const boxTopY = secondPageHeight - boxTopLeftYTop;
+          const boxTopY = secondPageBox.y + secondPageBox.height - boxTopLeftYTop;
           const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
 
-          const drawX = boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+          const drawX = secondPageBox.x + boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
           const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
           secondPage.drawImage(logoImage, {
