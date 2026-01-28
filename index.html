@@ -1053,13 +1053,12 @@
         // Ajuste visual: aumentamos o tamanho alvo e refinamos o posicionamento base.
         // Importante: BASE_X / BASE_Y_TOP representam o CANTO SUPERIOR ESQUERDO da "caixa" da logo
         // (medidos a partir do topo da página), e a logo é centralizada dentro dessa caixa mantendo proporção.
-        const LOGO_TARGET_WIDTH = 52;   // ~45–55 (maior e mais legível)
-        const LOGO_TARGET_HEIGHT = 52;  // caixa quadrada, mantendo proporção do PNG
-        const BASE_X = 106.0001;        // ajuste fino aqui, se necessário
-        const BASE_Y_TOP = 75.6135;     // ajuste fino aqui, se necessário (a partir do topo)
-        const COL_OFFSET = 160.4136;
-        // Assumimos grid quadrado: offset vertical igual ao horizontal
-        const ROW_OFFSET = 160.4136;
+        const LOGO_TARGET_WIDTH = 40;   // maior (aprox. 40x40), mantendo proporção do PNG
+        const LOGO_TARGET_HEIGHT = 40;  // caixa quadrada, mantendo proporção do PNG
+        const BASE_X = 106.0001;        // referência Illustrator (top-left)
+        const BASE_Y_TOP = 75.6135;     // referência Illustrator (top-left, a partir do topo)
+        const COL_OFFSET = 160.4136;    // offsetX entre colunas
+        const ROW_OFFSET = 214.1202;    // offsetY entre linhas
 
         // Mantém proporção da imagem dentro do retângulo alvo
         const logoIntrinsicWidth = logoImage.width;
