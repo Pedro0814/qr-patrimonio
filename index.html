@@ -29,28 +29,61 @@
       right: 16px;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
       padding: 3px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.85);
       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.6);
       z-index: 1000;
+      border: 1px solid rgba(148, 163, 184, 0.5);
     }
 
     .lang-btn {
       border: none;
       background: transparent;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 10px;
       line-height: 1;
       padding: 4px 6px;
       border-radius: 999px;
-      opacity: 0.6;
+      opacity: 0.65;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #e5e7eb;
       transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
     }
 
+    .lang-btn-flag {
+      width: 14px;
+      height: 10px;
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7);
+      flex-shrink: 0;
+    }
+
+    .lang-btn-flag.br {
+      background: linear-gradient(to bottom,
+        #009c3b 0 33%,
+        #ffdf00 33% 66%,
+        #002776 66% 100%);
+    }
+
+    .lang-btn-flag.es {
+      background: linear-gradient(to bottom,
+        #c60b1e 0 25%,
+        #ffc400 25% 75%,
+        #c60b1e 75% 100%);
+    }
+
+    .lang-btn-label {
+      font-weight: 600;
+      font-size: 10px;
+    }
+
     .lang-btn:hover {
-      opacity: 0.9;
+      opacity: 0.95;
       transform: translateY(-1px);
     }
 
@@ -433,25 +466,27 @@
   <!-- Toggle de idioma (PT / ES) -->
   <div class="lang-toggle" id="langToggle">
     <button type="button" data-lang="pt" class="lang-btn lang-active" aria-label="Português (Brasil)">
-      🇧🇷
+      <span class="lang-btn-flag br"></span>
+      <span class="lang-btn-label">PT</span>
     </button>
     <button type="button" data-lang="es" class="lang-btn" aria-label="Español (España)">
-      🇪🇸
+      <span class="lang-btn-flag es"></span>
+      <span class="lang-btn-label">ES</span>
     </button>
   </div>
 
   <!-- Dashboard -->
   <div id="dashboard">
-    <div class="dashboard-header">
-      <div class="dashboard-brand">
-        <img src="logotipobranco.png" alt="Logo Trílogo">
+      <div class="dashboard-header">
+        <div class="dashboard-brand">
+          <img src="logotipobranco.png" alt="Logo Trílogo">
+        </div>
+        <div class="dashboard-header-label">
+          <span id="dashboardLabel">Painel de geração</span>
+        </div>
+        <h1 id="dashboardTitle">Escolha o tipo de QR Code que você precisa gerar</h1>
+        <p id="dashboardSubtitle">Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.</p>
       </div>
-      <div class="dashboard-header-label">
-        <span>Painel de geração</span>
-      </div>
-      <h1>Escolha o tipo de QR Code que você precisa gerar</h1>
-      <p>Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.</p>
-    </div>
     <div class="dashboard-content-wrapper">
       <div class="dashboard-character">
         <img src="Manuzinha.png" alt="Assistente virtual">
@@ -468,13 +503,13 @@
       <!-- Card Engenharia do Corpo - REMOVIDO DO DASHBOARD (disponível apenas via URL /engenhariadocorpo) -->
       <div class="dashboard-card" data-mode="publico" onclick="openGeneratorWithMode('publico')">
         <div class="dashboard-card-icon">🎫</div>
-        <h3>QR Code para Bem Público</h3>
-        <p>Crie QR Codes com abertura de chamados públicos para manutenção dos bens.</p>
+        <h3 id="cardPublicTitle">QR Code para Bem Público</h3>
+        <p id="cardPublicDesc">Crie QR Codes com abertura de chamados públicos para manutenção dos bens.</p>
       </div>
       <div class="dashboard-card" data-mode="outro" onclick="openGeneratorWithMode('outro')">
         <div class="dashboard-card-icon">🎨</div>
-        <h3>Criar arte personalizada</h3>
-        <p>Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.</p>
+        <h3 id="cardCustomTitle">Criar arte personalizada</h3>
+        <p id="cardCustomDesc">Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.</p>
       </div>
         </div>
       </div>
@@ -491,22 +526,22 @@
         </div>
 
         <div class="header">
-          <h1>🧾 QR Code de Placa de Patrimônio</h1>
-          <p>Gerador de QR Codes Patrimonial Trílogo</p>
+          <h1 id="qrHeaderTitle">🧾 QR Code de Placa de Patrimônio</h1>
+          <p id="qrHeaderSubtitle">Gerador de QR Codes Patrimonial Trílogo</p>
         </div>
 
-        <label for="client">🧑‍💼 Nome do Cliente:</label>
-        <div class="instruction">Nome que está no link do domínio Trílogo. Ex: minhaempresa.trilogo.app → minhaempresa</div>
+        <label for="client" id="labelClient">🧑‍💼 Nome do Cliente:</label>
+        <div class="instruction" id="instructionClient">Nome que está no link do domínio Trílogo. Ex: minhaempresa.trilogo.app → minhaempresa</div>
         <input type="text" id="client" placeholder="Ex: minhaempresa" />
 
-        <label for="start">🔢 Número Inicial:</label>
+        <label for="start" id="labelStart">🔢 Número Inicial:</label>
         <input type="number" id="start" value="1" />
 
-        <label for="end">🔢 Número Final:</label>
+        <label for="end" id="labelEnd">🔢 Número Final:</label>
         <input type="number" id="end" value="3" />
 
         <div id="templateSection">
-          <label for="templateSelect">🎨 Template de Fundo:</label>
+          <label for="templateSelect" id="labelTemplate">🎨 Template de Fundo:</label>
           <select id="templateSelect">
             <option value="0">Padrão</option>
             <option value="1">Template 1</option>
@@ -551,26 +586,26 @@
       <!-- Seção da "Outra funcionalidade" - geração de Excel -->
       <div id="otherFeatureSection" style="display:none; margin-top: 10px;">
         <div class="header">
-          <h1>📊 Lista de Patrimônio em Excel</h1>
-          <p>Gere uma planilha com sequência de patrimônios e URLs com GUID único.</p>
+          <h1 id="excelHeaderTitle">📊 Lista de Patrimônio em Excel</h1>
+          <p id="excelHeaderSubtitle">Gere uma planilha com sequência de patrimônios e URLs com GUID único.</p>
         </div>
 
-        <label for="of_client">🧑‍💼 Nome do Cliente:</label>
-        <div class="instruction">Será usado no nome do arquivo gerado. Ex: minhaempresa</div>
+        <label for="of_client" id="excelLabelClient">🧑‍💼 Nome do Cliente:</label>
+        <div class="instruction" id="excelInstructionClient">Será usado no nome do arquivo gerado. Ex: minhaempresa</div>
         <input type="text" id="of_client" placeholder="Ex: minhaempresa" />
 
-        <label for="of_start">🔢 Número Inicial:</label>
+        <label for="of_start" id="excelLabelStart">🔢 Número Inicial:</label>
         <input type="number" id="of_start" value="1" />
 
-        <label for="of_end">🔢 Número Final:</label>
+        <label for="of_end" id="excelLabelEnd">🔢 Número Final:</label>
         <input type="number" id="of_end" value="100" />
 
-        <label for="of_digits">#️⃣ Dígitos (zero‑pad):</label>
-        <div class="instruction">Quantidade de dígitos do patrimônio. Ex: 3 → 001, 002...</div>
+        <label for="of_digits" id="excelLabelDigits">#️⃣ Dígitos (zero‑pad):</label>
+        <div class="instruction" id="excelInstructionDigits">Quantidade de dígitos do patrimônio. Ex: 3 → 001, 002...</div>
         <input type="number" id="of_digits" value="3" min="1" max="10" />
 
-        <label>🔗 Base URL para QR Content:</label>
-        <div class="instruction">
+        <label id="excelLabelBaseUrl">🔗 Base URL para QR Content:</label>
+        <div class="instruction" id="excelInstructionBaseUrl">
           Esta funcionalidade usa automaticamente a mesma URL pública do modo <strong>Público</strong>:<br/>
           <code>https://public.trilogo.app/asset?uid=&lt;guid&gt;</code>
         </div>
@@ -599,12 +634,12 @@
       </div>
 
       <div class="header">
-        <h1>🧾 Aplicar logo em PDF</h1>
-        <p>Envie um PNG e gere um PDF com a logo aplicada em todas as artes.</p>
+        <h1 id="pdfLogoHeaderTitle">🧾 Aplicar logo em PDF</h1>
+        <p id="pdfLogoHeaderSubtitle">Envie um PNG e gere um PDF com a logo aplicada em todas as artes.</p>
       </div>
 
-      <label for="pdfLogoFileInput">🖼️ Logo em PNG:</label>
-      <div class="instruction">
+      <label for="pdfLogoFileInput" id="pdfLogoLabelFile">🖼️ Logo em PNG:</label>
+      <div class="instruction" id="pdfLogoInstructionFile">
         Envie um arquivo PNG. A imagem será redimensionada para o tamanho padrão e aplicada automaticamente nas artes do PDF base.
       </div>
       <input
@@ -619,7 +654,7 @@
         <p id="pdfLogoProgressText">Aguardando envio da logo.</p>
       </div>
 
-      <div class="instruction" style="margin-top:16px;">
+      <div class="instruction" id="pdfLogoFooterText" style="margin-top:16px;">
         • O PDF base deve estar disponível em <code>/base.pdf</code> no mesmo diretório deste arquivo.<br/>
         • Página 1: grade 3x3 (9 artes).<br/>
         • Página 2: utiliza a mesma posição da primeira arte da página 1.<br/>
@@ -641,7 +676,8 @@
     let currentLanguage = 'pt'; // 'pt' ou 'es'
 
     function getPatrimonioLabel() {
-      return currentLanguage === 'es' ? 'Activos' : 'Patrimônio';
+      // Em espanhol, o cliente quer a palavra no singular: "Activo"
+      return currentLanguage === 'es' ? 'Activo' : 'Patrimônio';
     }
 
     // Funções de navegação do dashboard
@@ -1729,7 +1765,144 @@
             btn.classList.remove('lang-active');
           }
         });
+
+        // Aplica textos do idioma selecionado
+        applyLanguageTexts();
       });
+
+      // Garante texto correto na carga inicial
+      applyLanguageTexts();
+    }
+
+    function applyLanguageTexts() {
+      const t = {
+        pt: {
+          dashboardLabel: 'Painel de geração',
+          dashboardTitle: 'Escolha o tipo de QR Code que você precisa gerar',
+          dashboardSubtitle: 'Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.',
+          cardPublicTitle: 'QR Code para Bem Público',
+          cardPublicDesc: 'Crie QR Codes com abertura de chamados públicos para manutenção dos bens.',
+          cardCustomTitle: 'Criar arte personalizada',
+          cardCustomDesc: 'Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.',
+          qrHeaderTitle: '🧾 QR Code de Placa de Patrimônio',
+          qrHeaderSubtitle: 'Gerador de QR Codes Patrimonial Trílogo',
+          labelClient: '🧑‍💼 Nome do Cliente:',
+          instructionClient: 'Nome que está no link do domínio Trílogo. Ex: minhaempresa.trilogo.app → minhaempresa',
+          labelStart: '🔢 Número Inicial:',
+          labelEnd: '🔢 Número Final:',
+          labelTemplate: '🎨 Template de Fundo:',
+          generateBtn: '🎟️ GERAR QR CODES',
+          excelHeaderTitle: '📊 Lista de Patrimônio em Excel',
+          excelHeaderSubtitle: 'Gere uma planilha com sequência de patrimônios e URLs com GUID único.',
+          excelLabelClient: '🧑‍💼 Nome do Cliente:',
+          excelInstructionClient: 'Será usado no nome do arquivo gerado. Ex: minhaempresa',
+          excelLabelStart: '🔢 Número Inicial:',
+          excelLabelEnd: '🔢 Número Final:',
+          excelLabelDigits: '#️⃣ Dígitos (zero‑pad):',
+          excelInstructionDigits: 'Quantidade de dígitos do patrimônio. Ex: 3 → 001, 002...',
+          excelLabelBaseUrl: '🔗 Base URL para QR Content:',
+          excelInstructionBaseUrl: 'Esta funcionalidade usa automaticamente a mesma URL pública do modo <strong>Público</strong>:<br/><code>https://public.trilogo.app/asset?uid=&lt;guid&gt;</code>',
+          excelGenerateBtn: '📥 Gerar Excel',
+          excelPreviewBtn: '👁️ Visualizar 5 primeiros',
+          pdfLogoHeaderTitle: '🧾 Aplicar logo em PDF',
+          pdfLogoHeaderSubtitle: 'Envie um PNG e gere um PDF com a logo aplicada em todas as artes.',
+          pdfLogoLabelFile: '🖼️ Logo em PNG:',
+          pdfLogoInstructionFile: 'Envie um arquivo PNG. A imagem será redimensionada para o tamanho padrão e aplicada automaticamente nas artes do PDF base.',
+          pdfLogoFooterText: '• O PDF base deve estar disponível em <code>/base.pdf</code> no mesmo diretório deste arquivo.<br/>• Página 1: grade 3x3 (9 artes).<br/>• Página 2: utiliza a mesma posição da primeira arte da página 1.<br/>• Esta é a primeira versão da funcionalidade, pensada para ser expandida futuramente.',
+          pdfLogoGenerateBtn: '📄 Gerar PDF com logo'
+        },
+        es: {
+          dashboardLabel: 'Panel de generación',
+          dashboardTitle: 'Elija el tipo de código QR que necesita generar',
+          dashboardSubtitle: 'Seleccione a continuación el modo de generación para crear artes de códigos QR de activos, bienes públicos o una hoja de cálculo con el contenido de los códigos QR para usar en su propio diseño.',
+          cardPublicTitle: 'Código QR para Bien Público',
+          cardPublicDesc: 'Cree códigos QR con apertura de tickets públicos para el mantenimiento de los bienes.',
+          cardCustomTitle: 'Crear arte personalizada',
+          cardCustomDesc: 'Exporte una hoja de cálculo con el contenido de los códigos QR (URL + GUID) para usar en su propio diseño.',
+          qrHeaderTitle: '🧾 Código QR de Placa de Activo',
+          qrHeaderSubtitle: 'Generador de códigos QR patrimoniales Trílogo',
+          labelClient: '🧑‍💼 Nombre del Cliente:',
+          instructionClient: 'Nombre que aparece en el dominio Trílogo. Ej: miempresa.trilogo.app → miempresa',
+          labelStart: '🔢 Número Inicial:',
+          labelEnd: '🔢 Número Final:',
+          labelTemplate: '🎨 Plantilla de Fondo:',
+          generateBtn: '🎟️ GENERAR CÓDIGOS QR',
+          excelHeaderTitle: '📊 Lista de Activos en Excel',
+          excelHeaderSubtitle: 'Genere una hoja de cálculo con una secuencia de activos y URLs con GUID único.',
+          excelLabelClient: '🧑‍💼 Nombre del Cliente:',
+          excelInstructionClient: 'Se utilizará en el nombre del archivo generado. Ej: miempresa',
+          excelLabelStart: '🔢 Número Inicial:',
+          excelLabelEnd: '🔢 Número Final:',
+          excelLabelDigits: '#️⃣ Dígitos (zero‑pad):',
+          excelInstructionDigits: 'Cantidad de dígitos del activo. Ej: 3 → 001, 002...',
+          excelLabelBaseUrl: '🔗 URL base para el contenido del QR:',
+          excelInstructionBaseUrl: 'Esta funcionalidad utiliza automáticamente la misma URL pública del modo <strong>Público</strong>:<br/><code>https://public.trilogo.app/asset?uid=&lt;guid&gt;</code>',
+          excelGenerateBtn: '📥 Generar Excel',
+          excelPreviewBtn: '👁️ Ver los 5 primeros',
+          pdfLogoHeaderTitle: '🧾 Aplicar logo en PDF',
+          pdfLogoHeaderSubtitle: 'Envíe un PNG y genere un PDF con el logo aplicado en todas las artes.',
+          pdfLogoLabelFile: '🖼️ Logo en PNG:',
+          pdfLogoInstructionFile: 'Envíe un archivo PNG. La imagen se redimensionará al tamaño estándar y se aplicará automáticamente en las artes del PDF base.',
+          pdfLogoFooterText: '• El PDF base debe estar disponible en <code>/base.pdf</code> en el mismo directorio de este archivo.<br/>• Página 1: cuadrícula 3x3 (9 artes).<br/>• Página 2: utiliza la misma posición de la primera arte de la página 1.<br/>• Esta es la primera versión de la funcionalidad, pensada para ampliarse en el futuro.',
+          pdfLogoGenerateBtn: '📄 Generar PDF con logo'
+        }
+      };
+
+      const dict = currentLanguage === 'es' ? t.es : t.pt;
+
+      function setText(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        // Se o texto inclui HTML (por exemplo, com <strong>), usamos innerHTML
+        if (value.includes('<') && value.includes('>')) {
+          el.innerHTML = value;
+        } else {
+          el.textContent = value;
+        }
+      }
+
+      setText('dashboardLabel', dict.dashboardLabel);
+      setText('dashboardTitle', dict.dashboardTitle);
+      setText('dashboardSubtitle', dict.dashboardSubtitle);
+      setText('cardPublicTitle', dict.cardPublicTitle);
+      setText('cardPublicDesc', dict.cardPublicDesc);
+      setText('cardCustomTitle', dict.cardCustomTitle);
+      setText('cardCustomDesc', dict.cardCustomDesc);
+
+      setText('qrHeaderTitle', dict.qrHeaderTitle);
+      setText('qrHeaderSubtitle', dict.qrHeaderSubtitle);
+      setText('labelClient', dict.labelClient);
+      setText('instructionClient', dict.instructionClient);
+      setText('labelStart', dict.labelStart);
+      setText('labelEnd', dict.labelEnd);
+      setText('labelTemplate', dict.labelTemplate);
+
+      const generateBtnEl = document.getElementById('generateBtn');
+      if (generateBtnEl) generateBtnEl.textContent = dict.generateBtn;
+
+      setText('excelHeaderTitle', dict.excelHeaderTitle);
+      setText('excelHeaderSubtitle', dict.excelHeaderSubtitle);
+      setText('excelLabelClient', dict.excelLabelClient);
+      setText('excelInstructionClient', dict.excelInstructionClient);
+      setText('excelLabelStart', dict.excelLabelStart);
+      setText('excelLabelEnd', dict.excelLabelEnd);
+      setText('excelLabelDigits', dict.excelLabelDigits);
+      setText('excelInstructionDigits', dict.excelInstructionDigits);
+      setText('excelLabelBaseUrl', dict.excelLabelBaseUrl);
+      setText('excelInstructionBaseUrl', dict.excelInstructionBaseUrl);
+
+      const excelGenBtn = document.getElementById('of_generateBtn');
+      if (excelGenBtn) excelGenBtn.textContent = dict.excelGenerateBtn;
+      const excelPrevBtn = document.getElementById('of_previewBtn');
+      if (excelPrevBtn) excelPrevBtn.textContent = dict.excelPreviewBtn;
+
+      setText('pdfLogoHeaderTitle', dict.pdfLogoHeaderTitle);
+      setText('pdfLogoHeaderSubtitle', dict.pdfLogoHeaderSubtitle);
+      setText('pdfLogoLabelFile', dict.pdfLogoLabelFile);
+      setText('pdfLogoInstructionFile', dict.pdfLogoInstructionFile);
+      setText('pdfLogoFooterText', dict.pdfLogoFooterText);
+      const pdfGenBtn = document.getElementById('pdfLogoGenerateBtn');
+      if (pdfGenBtn) pdfGenBtn.textContent = dict.pdfLogoGenerateBtn;
     }
 
     // Listener para mudanças de hash (navegação direta via URL)
