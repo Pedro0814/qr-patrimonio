@@ -64,10 +64,11 @@
     }
 
     .lang-btn-flag.br {
-      background: linear-gradient(to bottom,
-        #009c3b 0 33%,
-        #ffdf00 33% 66%,
-        #002776 66% 100%);
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 50%, #002776 0 45%, transparent 46%) /* círculo azul central */
+        , #009c3b; /* fundo verde */
+      box-shadow: 0 0 0 1px #ffdf00; /* anel amarelo simples em volta */
     }
 
     .lang-btn-flag.es {
@@ -740,8 +741,11 @@
           if (qrSection) qrSection.style.display = 'block';
           if (otherSection) otherSection.style.display = 'none';
           if (clientInput) {
-            clientInput.value = 'publico';
-            clientInput.readOnly = true;
+            // Deixa um valor padrão mas permite edição pelo usuário
+            if (!clientInput.value) {
+              clientInput.value = 'publico';
+            }
+            clientInput.readOnly = false;
           }
           // Mantém template visível
           loadLogoForMode('default').then(() => {
