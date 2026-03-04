@@ -1955,6 +1955,16 @@
       }
       // Engenharia ainda funciona via pathname /engenhariadocorpo (verificado em loadDefaultLogo e outros lugares)
     });
+
+    // Garante que a pré-visualização do template padrão seja renderizada
+    // assim que o DOM estiver pronto, sem depender apenas do evento change.
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        updatePreviewForCurrentTemplate();
+      } catch (e) {
+        // Falha silenciosa para não quebrar o carregamento da página
+      }
+    });
   </script>
 
 </body>
