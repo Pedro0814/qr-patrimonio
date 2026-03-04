@@ -23,6 +23,42 @@
       color: #333;
     }
 
+    .lang-toggle {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.6);
+      z-index: 1000;
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 999px;
+      opacity: 0.6;
+      transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+    }
+
+    .lang-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .lang-btn.lang-active {
+      background: rgba(148, 163, 184, 0.35);
+      opacity: 1;
+    }
+
     .container {
       max-width: 500px;
       background: white;
@@ -394,6 +430,16 @@
 </head>
 <body>
 
+  <!-- Toggle de idioma (PT / ES) -->
+  <div class="lang-toggle" id="langToggle">
+    <button type="button" data-lang="pt" class="lang-btn lang-active" aria-label="Português (Brasil)">
+      🇧🇷
+    </button>
+    <button type="button" data-lang="es" class="lang-btn" aria-label="Español (España)">
+      🇪🇸
+    </button>
+  </div>
+
   <!-- Dashboard -->
   <div id="dashboard">
     <div class="dashboard-header">
@@ -592,6 +638,11 @@
     let previewObjectUrl = null;
     let currentMode = null; // armazena o modo atual
     const PDF_LOGO_ROUTE = '/aplicar-logo-pdf';
+    let currentLanguage = 'pt'; // 'pt' ou 'es'
+
+    function getPatrimonioLabel() {
+      return currentLanguage === 'es' ? 'Activos' : 'Patrimônio';
+    }
 
     // Funções de navegação do dashboard
     function showDashboard() {
@@ -1049,14 +1100,36 @@
         const logoBytes = await file.arrayBuffer();
         const logoImage = await pdfDoc.embedPng(logoBytes);
 
+        function getPageBox(page) {
+          // Alguns PDFs usam CropBox/MediaBox com offset (x/y != 0).
+          // Se ignorarmos isso, coordenadas vindas do Illustrator podem "deslocar" entre linhas/colunas.
+          try {
+            if (page && typeof page.getCropBox === 'function') {
+              const crop = page.getCropBox();
+              if (crop && typeof crop.width === 'number' && typeof crop.height === 'number') return crop;
+            }
+          } catch (e) {}
+          try {
+            if (page && typeof page.getMediaBox === 'function') {
+              const media = page.getMediaBox();
+              if (media && typeof media.width === 'number' && typeof media.height === 'number') return media;
+            }
+          } catch (e) {}
+          const width = page.getWidth ? page.getWidth() : 0;
+          const height = page.getHeight ? page.getHeight() : 0;
+          return { x: 0, y: 0, width, height };
+        }
+
         // Regras de posicionamento em pontos (pt)
-        const LOGO_TARGET_WIDTH = 28.2667;
-        const LOGO_TARGET_HEIGHT = 28.2667;
-        const BASE_X = 106.0001;
-        const BASE_Y_TOP = 75.6135;
-        const COL_OFFSET = 160.4136;
-        // Assumimos grid quadrado: offset vertical igual ao horizontal
-        const ROW_OFFSET = 160.4136;
+        // Ajuste visual: aumentamos o tamanho alvo e refinamos o posicionamento base.
+        // Importante: BASE_X / BASE_Y_TOP representam o CANTO SUPERIOR ESQUERDO da "caixa" da logo
+        // (medidos a partir do topo da página), e a logo é centralizada dentro dessa caixa mantendo proporção.
+        const LOGO_TARGET_WIDTH = 40;   // maior (aprox. 40x40), mantendo proporção do PNG
+        const LOGO_TARGET_HEIGHT = 40;  // caixa quadrada, mantendo proporção do PNG
+        const BASE_X = 106.0001;        // referência Illustrator (top-left)
+        const BASE_Y_TOP = 75.6135;     // referência Illustrator (top-left, a partir do topo)
+        const COL_OFFSET = 160.4136;    // offsetX entre colunas
+        const ROW_OFFSET = 214.1202;    // offsetY entre linhas
 
         // Mantém proporção da imagem dentro do retângulo alvo
         const logoIntrinsicWidth = logoImage.width;
@@ -1075,20 +1148,23 @@
         }
 
         const firstPage = pages[0];
-        const firstPageHeight = firstPage.getHeight();
+        const firstPageBox = getPageBox(firstPage);
 
-        if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 1 (grade 3x3)...';
+        if (progressTextEl) progressTextEl.textContent = `Aplicando logo na página 1 (grade 3x3)... (40pt, offsetY ${ROW_OFFSET})`;
 
-        // Coords são recebidas como se a origem fosse no canto superior esquerdo.
-        // Precisamos converter para coordenadas PDF (origem no canto inferior esquerdo).
+        // Coords BASE_* são definidos a partir do topo (top-left).
+        // Convertendo para coordenadas PDF (origem no canto inferior esquerdo).
         for (let row = 0; row < 3; row++) {
           for (let col = 0; col < 3; col++) {
-            const centerX = BASE_X + COL_OFFSET * col;
-            const centerYTop = BASE_Y_TOP + ROW_OFFSET * row;
-            const centerY = firstPageHeight - centerYTop;
+            const boxTopLeftX = BASE_X + COL_OFFSET * col;
+            const boxTopLeftYTop = BASE_Y_TOP + ROW_OFFSET * row; // distância a partir do topo
 
-            const drawX = centerX - drawWidth / 2;
-            const drawY = centerY - drawHeight / 2;
+            const boxTopY = firstPageBox.y + firstPageBox.height - boxTopLeftYTop;
+            const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
+
+            // Centraliza a imagem dentro da caixa alvo, mantendo proporção
+            const drawX = firstPageBox.x + boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+            const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
             firstPage.drawImage(logoImage, {
               x: drawX,
@@ -1103,14 +1179,16 @@
         if (pages.length >= 2) {
           if (progressTextEl) progressTextEl.textContent = 'Aplicando logo na página 2...';
           const secondPage = pages[1];
-          const secondPageHeight = secondPage.getHeight();
+          const secondPageBox = getPageBox(secondPage);
 
-          const centerX = BASE_X;
-          const centerYTop = BASE_Y_TOP;
-          const centerY = secondPageHeight - centerYTop;
+          const boxTopLeftX = BASE_X;
+          const boxTopLeftYTop = BASE_Y_TOP;
 
-          const drawX = centerX - drawWidth / 2;
-          const drawY = centerY - drawHeight / 2;
+          const boxTopY = secondPageBox.y + secondPageBox.height - boxTopLeftYTop;
+          const boxBottomY = boxTopY - LOGO_TARGET_HEIGHT;
+
+          const drawX = secondPageBox.x + boxTopLeftX + (LOGO_TARGET_WIDTH - drawWidth) / 2;
+          const drawY = boxBottomY + (LOGO_TARGET_HEIGHT - drawHeight) / 2;
 
           secondPage.drawImage(logoImage, {
             x: drawX,
@@ -1306,7 +1384,7 @@
             ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
-            const patrimonioText = "Patrimônio";
+            const patrimonioText = getPatrimonioLabel();
             // Cor dinâmica do texto "Patrimônio" conforme o fundo
             const patrimonioFontPx = 93; // tamanho da fonte usado para estimar área
             const patrimonioWidth = ctx.measureText(patrimonioText).width;
@@ -1628,6 +1706,29 @@
       pdfLogoGenerateBtn.addEventListener('click', (e) => {
         e.preventDefault();
         applyLogoToPdf();
+      });
+    }
+
+    // Toggle de idioma (PT / ES) - afeta principalmente o texto "Patrimônio" nas artes
+    const langToggleEl = document.getElementById('langToggle');
+    if (langToggleEl) {
+      langToggleEl.addEventListener('click', (event) => {
+        const target = event.target.closest('.lang-btn');
+        if (!target) return;
+        const lang = target.getAttribute('data-lang');
+        if (!lang || (lang !== 'pt' && lang !== 'es')) return;
+
+        currentLanguage = lang;
+
+        // Atualiza estado visual dos botões
+        const buttons = langToggleEl.querySelectorAll('.lang-btn');
+        buttons.forEach(btn => {
+          if (btn.getAttribute('data-lang') === lang) {
+            btn.classList.add('lang-active');
+          } else {
+            btn.classList.remove('lang-active');
+          }
+        });
       });
     }
 
