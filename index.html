@@ -23,6 +23,42 @@
       color: #333;
     }
 
+    .lang-toggle {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.6);
+      z-index: 1000;
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 999px;
+      opacity: 0.6;
+      transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+    }
+
+    .lang-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .lang-btn.lang-active {
+      background: rgba(148, 163, 184, 0.35);
+      opacity: 1;
+    }
+
     .container {
       max-width: 500px;
       background: white;
@@ -394,6 +430,16 @@
 </head>
 <body>
 
+  <!-- Toggle de idioma (PT / ES) -->
+  <div class="lang-toggle" id="langToggle">
+    <button type="button" data-lang="pt" class="lang-btn lang-active" aria-label="Português (Brasil)">
+      🇧🇷
+    </button>
+    <button type="button" data-lang="es" class="lang-btn" aria-label="Español (España)">
+      🇪🇸
+    </button>
+  </div>
+
   <!-- Dashboard -->
   <div id="dashboard">
     <div class="dashboard-header">
@@ -592,6 +638,11 @@
     let previewObjectUrl = null;
     let currentMode = null; // armazena o modo atual
     const PDF_LOGO_ROUTE = '/aplicar-logo-pdf';
+    let currentLanguage = 'pt'; // 'pt' ou 'es'
+
+    function getPatrimonioLabel() {
+      return currentLanguage === 'es' ? 'Activos' : 'Patrimônio';
+    }
 
     // Funções de navegação do dashboard
     function showDashboard() {
@@ -1333,7 +1384,7 @@
             ctx.font = "bold 93px Inter";
             ctx.fillStyle = "black";
 
-            const patrimonioText = "Patrimônio";
+            const patrimonioText = getPatrimonioLabel();
             // Cor dinâmica do texto "Patrimônio" conforme o fundo
             const patrimonioFontPx = 93; // tamanho da fonte usado para estimar área
             const patrimonioWidth = ctx.measureText(patrimonioText).width;
@@ -1655,6 +1706,29 @@
       pdfLogoGenerateBtn.addEventListener('click', (e) => {
         e.preventDefault();
         applyLogoToPdf();
+      });
+    }
+
+    // Toggle de idioma (PT / ES) - afeta principalmente o texto "Patrimônio" nas artes
+    const langToggleEl = document.getElementById('langToggle');
+    if (langToggleEl) {
+      langToggleEl.addEventListener('click', (event) => {
+        const target = event.target.closest('.lang-btn');
+        if (!target) return;
+        const lang = target.getAttribute('data-lang');
+        if (!lang || (lang !== 'pt' && lang !== 'es')) return;
+
+        currentLanguage = lang;
+
+        // Atualiza estado visual dos botões
+        const buttons = langToggleEl.querySelectorAll('.lang-btn');
+        buttons.forEach(btn => {
+          if (btn.getAttribute('data-lang') === lang) {
+            btn.classList.add('lang-active');
+          } else {
+            btn.classList.remove('lang-active');
+          }
+        });
       });
     }
 
