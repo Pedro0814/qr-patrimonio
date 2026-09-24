@@ -210,33 +210,43 @@
     
     /* Dashboard (cards de modos) */
     #dashboard {
-      max-width: 1200px;
-      margin: 48px auto 56px;
-      padding: 0 24px;
+      max-width: 1080px;
+      min-height: calc(100vh - 24px);
+      margin: 0 auto;
+      padding: 56px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .dashboard-content-wrapper {
+      position: relative;
       display: flex;
-      align-items: flex-start;
-      gap: 48px;
       justify-content: center;
+      align-items: stretch;
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+      padding-left: 0;
     }
 
     .dashboard-character {
-      flex-shrink: 0;
+      position: absolute;
+      left: -150px;
+      bottom: -8px;
+      width: 148px;
+      pointer-events: none;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      width: 280px;
-      padding-top: 20px;
     }
 
     .dashboard-character img {
       width: 100%;
       height: auto;
-      max-width: 280px;
+      max-width: 148px;
       object-fit: contain;
-      filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.5));
+      filter: drop-shadow(0 16px 28px rgba(15, 23, 42, 0.5));
       animation: float 3s ease-in-out infinite;
     }
 
@@ -245,18 +255,18 @@
         transform: translateY(0px);
       }
       50% {
-        transform: translateY(-10px);
+        transform: translateY(-8px);
       }
     }
 
     .dashboard-cards-wrapper {
-      flex: 1;
+      width: 100%;
       min-width: 0;
     }
 
     .dashboard-header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
       color: #f5f6ff;
     }
 
@@ -298,22 +308,34 @@
     .dashboard-header p {
       max-width: 560px;
       margin: 0 auto;
-      color: rgba(226, 232, 255, 0.85);
+      color: #e8edff;
       font-size: 15px;
     }
 
     .dashboard-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 32px;
-      margin-top: 32px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    button.dashboard-card {
+      margin-top: 0;
+      width: 100%;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      color: inherit;
+      text-align: left;
+      appearance: none;
+      -webkit-appearance: none;
     }
 
     .dashboard-card {
       position: relative;
       overflow: hidden;
-      background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.15), rgba(15, 23, 42, 0.02));
-      padding: 24px 22px 22px;
+      background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.15), rgba(15, 23, 42, 0.18));
+      padding: 22px 20px 18px;
       border-radius: 18px;
       box-shadow: 0 18px 45px rgba(15, 23, 42, 0.40);
       cursor: pointer;
@@ -321,6 +343,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      min-height: 100%;
       transition:
         transform 0.2s ease-out,
         box-shadow 0.2s ease-out,
@@ -334,53 +357,115 @@
       position: absolute;
       inset: 0;
       opacity: 0;
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 55%);
+      background: radial-gradient(circle at top right, rgba(244, 114, 182, 0.18), transparent 55%);
       transition: opacity 0.25s ease-out;
       pointer-events: none;
     }
 
-    .dashboard-card:hover {
+    .dashboard-card:hover,
+    .dashboard-card:focus-visible {
       transform: translateY(-6px) scale(1.01);
       box-shadow: 0 24px 55px rgba(15, 23, 42, 0.65);
-      border-color: rgba(129, 140, 248, 0.65);
+      border-color: rgba(244, 114, 182, 0.85);
+      background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.15), rgba(15, 23, 42, 0.18));
     }
 
-    .dashboard-card:hover::before {
+    .dashboard-card:hover::before,
+    .dashboard-card:focus-visible::before {
       opacity: 1;
     }
 
+    .dashboard-card:focus {
+      outline: none;
+    }
+
+    .dashboard-card:focus-visible {
+      outline: 2px solid #f9a8d4;
+      outline-offset: 3px;
+    }
+
+    .dashboard-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
     .dashboard-card-icon {
-      width: 42px;
-      height: 42px;
+      width: 52px;
+      height: 52px;
       border-radius: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      margin-bottom: 14px;
-      background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(56, 189, 248, 0.12));
-      color: #e5e7ff;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(129, 140, 248, 0.28), rgba(56, 189, 248, 0.18));
+      color: #e0e7ff;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.65);
     }
 
+    .dashboard-card-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .dashboard-card-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(244, 114, 182, 0.16);
+      color: #fbcfe8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
     .dashboard-card h3 {
-      color: #e5e7ff;
+      color: #f4f6ff;
       font-size: 18px;
       font-weight: 600;
-      margin: 2px 0 6px;
+      margin: 0 0 8px;
     }
 
     .dashboard-card p {
-      color: #cbd5f5;
+      color: #e4e9fb;
       font-size: 14px;
       line-height: 1.5;
       margin: 0;
     }
 
-    /* Opcional: leve destaque para o card da arte personalizada */
-    .dashboard-card[data-mode="outro"] {
-      grid-column: span 1;
-      border-color: rgba(244, 114, 182, 0.6);
+    .dashboard-card-desc {
+      flex: 1;
+    }
+
+    .dashboard-card-result {
+      margin-top: 16px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #d5ddf8;
+    }
+
+    .dashboard-card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      color: #f9a8d4;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .dashboard-card-action svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
     }
 
     .back-button {
@@ -395,27 +480,32 @@
       background-color: #555;
     }
 
-    @media (max-width: 1024px) {
-      .dashboard-content-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 32px;
-      }
-
+    @media (max-width: 1100px) {
       .dashboard-character {
-        width: 220px;
-        padding-top: 0;
+        left: -8px;
+        width: 120px;
+        opacity: 0.9;
       }
 
       .dashboard-character img {
-        max-width: 220px;
+        max-width: 120px;
+      }
+
+      .dashboard-content-wrapper {
+        max-width: 720px;
       }
     }
 
     @media (max-width: 768px) {
       #dashboard {
-        margin: 28px auto 40px;
-        padding: 0 16px;
+        min-height: auto;
+        margin: 0 auto;
+        padding: 72px 16px 32px;
+        justify-content: flex-start;
+      }
+
+      .dashboard-header {
+        margin-bottom: 20px;
       }
 
       .dashboard-header h1 {
@@ -424,14 +514,11 @@
 
       .dashboard-cards {
         grid-template-columns: 1fr;
+        margin-top: 0;
       }
 
       .dashboard-character {
-        width: 180px;
-      }
-
-      .dashboard-character img {
-        max-width: 180px;
+        display: none;
       }
     }
 
@@ -520,12 +607,12 @@
         <div class="dashboard-header-label">
           <span id="dashboardLabel">Painel de geração</span>
         </div>
-        <h1 id="dashboardTitle">Escolha o tipo de QR Code que você precisa gerar</h1>
-        <p id="dashboardSubtitle">Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.</p>
+        <h1 id="dashboardTitle">Como você quer gerar seus QR Codes?</h1>
+        <p id="dashboardSubtitle">Use um modelo pronto do Trílogo ou baixe os dados para criar sua própria arte.</p>
       </div>
     <div class="dashboard-content-wrapper">
-      <div class="dashboard-character">
-        <img src="Manuzinha.png" alt="Assistente virtual">
+      <div class="dashboard-character" aria-hidden="true">
+        <img src="Manuzinha.png" alt="">
       </div>
       <div class="dashboard-cards-wrapper">
         <div class="dashboard-cards">
@@ -537,15 +624,60 @@
       </div>
       -->
       <!-- Card Engenharia do Corpo - REMOVIDO DO DASHBOARD (disponível apenas via URL /engenhariadocorpo) -->
-      <div class="dashboard-card" data-mode="publico" onclick="openGeneratorWithMode('publico')">
-        <div class="dashboard-card-icon">🎫</div>
-        <h3 id="cardPublicTitle">QR Code para Bem Público</h3>
-        <p id="cardPublicDesc">Crie QR Codes com abertura de chamados públicos para manutenção dos bens.</p>
+      <div class="dashboard-card" data-mode="publico" role="button" tabindex="0" aria-labelledby="cardPublicTitle" aria-describedby="cardPublicDesc cardPublicResult" onclick="openGeneratorWithMode('publico')" onkeydown="handleDashboardCardKey(event, 'publico')">
+        <div class="dashboard-card-top">
+          <div class="dashboard-card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+              <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+              <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+              <path d="M21 21v.01"></path>
+              <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+              <path d="M3 12h.01"></path>
+              <path d="M12 3h.01"></path>
+              <path d="M12 16v.01"></path>
+              <path d="M16 12h1"></path>
+              <path d="M21 12v.01"></path>
+              <path d="M12 21v-1"></path>
+            </svg>
+          </div>
+          <span class="dashboard-card-badge" id="cardRecommended">Recomendado</span>
+        </div>
+        <h3 id="cardPublicTitle">Usar modelo pronto</h3>
+        <p class="dashboard-card-desc" id="cardPublicDesc">Gere as artes com QR Code para abertura de chamados de manutenção, na quantidade que você precisar.</p>
+        <p class="dashboard-card-result" id="cardPublicResult">Você recebe: arquivo .zip com as artes em PNG</p>
+        <span class="dashboard-card-action">
+          <span class="js-card-continue">Continuar</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </span>
       </div>
-      <div class="dashboard-card" data-mode="outro" onclick="openGeneratorWithMode('outro')">
-        <div class="dashboard-card-icon">🎨</div>
-        <h3 id="cardCustomTitle">Criar arte personalizada</h3>
-        <p id="cardCustomDesc">Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.</p>
+      <div class="dashboard-card" data-mode="outro" role="button" tabindex="0" aria-labelledby="cardCustomTitle" aria-describedby="cardCustomDesc cardCustomResult" onclick="openGeneratorWithMode('outro')" onkeydown="handleDashboardCardKey(event, 'outro')">
+        <div class="dashboard-card-top">
+          <div class="dashboard-card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+              <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+              <path d="M8 13h2"></path>
+              <path d="M14 13h2"></path>
+              <path d="M8 17h2"></path>
+              <path d="M14 17h2"></path>
+            </svg>
+          </div>
+        </div>
+        <h3 id="cardCustomTitle">Baixar dados para design próprio</h3>
+        <p class="dashboard-card-desc" id="cardCustomDesc">Receba uma planilha Excel com o link de cada QR Code e crie as artes na ferramenta que preferir, fora do Trílogo.</p>
+        <p class="dashboard-card-result" id="cardCustomResult">Você recebe: arquivo .xlsx</p>
+        <span class="dashboard-card-action">
+          <span class="js-card-continue">Continuar</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </span>
       </div>
         </div>
       </div>
@@ -724,6 +856,12 @@
       if (pdfLogoApp) pdfLogoApp.style.display = 'none';
       currentMode = null;
       window.location.hash = '';
+    }
+
+    function handleDashboardCardKey(event, mode) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openGeneratorWithMode(mode);
     }
 
     function openGeneratorWithMode(mode) {
@@ -1826,12 +1964,16 @@
       const t = {
         pt: {
           dashboardLabel: 'Painel de geração',
-          dashboardTitle: 'Escolha o tipo de QR Code que você precisa gerar',
-          dashboardSubtitle: 'Selecione abaixo o modo de geração para criar artes de QR Codes de bens, bens públicos ou Excel com uma lista com conteúdo dos QR Codes para criar o seu próprio design.',
-          cardPublicTitle: 'QR Code para Bem Público',
-          cardPublicDesc: 'Crie QR Codes com abertura de chamados públicos para manutenção dos bens.',
-          cardCustomTitle: 'Criar arte personalizada',
-          cardCustomDesc: 'Exporte uma planilha com o conteúdo dos QR Codes (URL + GUID) para usar no seu próprio design.',
+          dashboardTitle: 'Como você quer gerar seus QR Codes?',
+          dashboardSubtitle: 'Use um modelo pronto do Trílogo ou baixe os dados para criar sua própria arte.',
+          cardPublicTitle: 'Usar modelo pronto',
+          cardPublicDesc: 'Gere as artes com QR Code para abertura de chamados de manutenção, na quantidade que você precisar.',
+          cardPublicResult: 'Você recebe: arquivo .zip com as artes em PNG',
+          cardRecommended: 'Recomendado',
+          cardCustomTitle: 'Baixar dados para design próprio',
+          cardCustomDesc: 'Receba uma planilha Excel com o link de cada QR Code e crie as artes na ferramenta que preferir, fora do Trílogo.',
+          cardCustomResult: 'Você recebe: arquivo .xlsx',
+          cardContinue: 'Continuar',
           qrHeaderTitle: '🧾 QR Code de Placa de Patrimônio',
           qrHeaderSubtitle: 'Gerador de QR Codes Patrimonial Trílogo',
           labelClient: '🧑‍💼 Nome do Cliente:',
@@ -1861,12 +2003,16 @@
         },
         es: {
           dashboardLabel: 'Panel de generación',
-          dashboardTitle: 'Elija el tipo de código QR que necesita generar',
-          dashboardSubtitle: 'Seleccione a continuación el modo de generación para crear artes de códigos QR de activos, bienes públicos o una hoja de cálculo con el contenido de los códigos QR para usar en su propio diseño.',
-          cardPublicTitle: 'Código QR para Bien Público',
-          cardPublicDesc: 'Cree códigos QR con apertura de tickets públicos para el mantenimiento de los bienes.',
-          cardCustomTitle: 'Crear arte personalizada',
-          cardCustomDesc: 'Exporte una hoja de cálculo con el contenido de los códigos QR (URL + GUID) para usar en su propio diseño.',
+          dashboardTitle: '¿Cómo quieres generar tus códigos QR?',
+          dashboardSubtitle: 'Usa una plantilla lista de Trílogo o descarga los datos para crear tu propio diseño.',
+          cardPublicTitle: 'Usar plantilla lista',
+          cardPublicDesc: 'Genera los diseños con código QR para abrir solicitudes de mantenimiento, en la cantidad que necesites.',
+          cardPublicResult: 'Recibes: archivo .zip con los diseños en PNG',
+          cardRecommended: 'Recomendado',
+          cardCustomTitle: 'Descargar datos para diseño propio',
+          cardCustomDesc: 'Recibe una hoja de cálculo Excel con el enlace de cada código QR y crea los diseños en la herramienta que prefieras, fuera de Trílogo.',
+          cardCustomResult: 'Recibes: archivo .xlsx',
+          cardContinue: 'Continuar',
           qrHeaderTitle: '🧾 Código QR de Placa de Activo',
           qrHeaderSubtitle: 'Generador de códigos QR patrimoniales Trílogo',
           labelClient: '🧑‍💼 Nombre del Cliente:',
@@ -1914,8 +2060,14 @@
       setText('dashboardSubtitle', dict.dashboardSubtitle);
       setText('cardPublicTitle', dict.cardPublicTitle);
       setText('cardPublicDesc', dict.cardPublicDesc);
+      setText('cardPublicResult', dict.cardPublicResult);
+      setText('cardRecommended', dict.cardRecommended);
       setText('cardCustomTitle', dict.cardCustomTitle);
       setText('cardCustomDesc', dict.cardCustomDesc);
+      setText('cardCustomResult', dict.cardCustomResult);
+      document.querySelectorAll('.js-card-continue').forEach((el) => {
+        el.textContent = dict.cardContinue;
+      });
 
       setText('qrHeaderTitle', dict.qrHeaderTitle);
       setText('qrHeaderSubtitle', dict.qrHeaderSubtitle);
