@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QR Code de Placa de Patrimônio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -303,13 +303,15 @@
       line-height: 1.25;
       color: #ffffff;
       text-shadow: 0 10px 30px rgba(15, 23, 42, 0.55);
+      text-wrap: balance;
     }
 
     .dashboard-header p {
-      max-width: 560px;
+      max-width: 680px;
       margin: 0 auto;
       color: #e8edff;
       font-size: 15px;
+      text-wrap: balance;
     }
 
     .dashboard-cards {
@@ -443,11 +445,16 @@
       flex: 1;
     }
 
-    .dashboard-card-result {
-      margin-top: 16px;
+    .dashboard-card p.dashboard-card-result {
+      margin-top: 10px;
       font-size: 12px;
-      line-height: 1.4;
-      color: #d5ddf8;
+      line-height: 1.45;
+      font-weight: 400;
+      color: #c5cde8;
+    }
+
+    .dashboard-card-result-label {
+      font-weight: 500;
     }
 
     .dashboard-card-action {
@@ -555,6 +562,72 @@
       background-color: #e5e5e5;
     }
     */
+
+    .download-identity-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(6px);
+    }
+
+    .download-identity-overlay.is-open {
+      display: flex;
+    }
+
+    .download-identity-modal {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .download-identity-modal h2 {
+      margin: 0 0 8px;
+      color: #1a237e;
+      font-size: 20px;
+    }
+
+    .download-identity-hint {
+      font-size: 13px;
+      color: #666;
+      margin: 0 0 16px;
+      font-style: italic;
+    }
+
+    .download-identity-modal label {
+      margin-top: 10px;
+    }
+
+    .download-identity-error {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #b91c1c;
+    }
+
+    .download-identity-cancel {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      background: transparent;
+      color: #475569;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .download-identity-cancel:hover {
+      background: transparent;
+      color: #1e293b;
+    }
   </style>
 </head>
 <body>
@@ -646,7 +719,7 @@
         </div>
         <h3 id="cardPublicTitle">Usar modelo pronto</h3>
         <p class="dashboard-card-desc" id="cardPublicDesc">Gere as artes com QR Code para abertura de chamados de manutenção, na quantidade que você precisar.</p>
-        <p class="dashboard-card-result" id="cardPublicResult">Você recebe: arquivo .zip com as artes em PNG</p>
+        <p class="dashboard-card-result" id="cardPublicResult"><span class="dashboard-card-result-label">Você recebe:</span> arquivo .zip com as artes em PNG</p>
         <span class="dashboard-card-action">
           <span class="js-card-continue">Continuar</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -670,7 +743,7 @@
         </div>
         <h3 id="cardCustomTitle">Baixar dados para design próprio</h3>
         <p class="dashboard-card-desc" id="cardCustomDesc">Receba uma planilha Excel com o link de cada QR Code e crie as artes na ferramenta que preferir, fora do Trílogo.</p>
-        <p class="dashboard-card-result" id="cardCustomResult">Você recebe: arquivo .xlsx</p>
+        <p class="dashboard-card-result" id="cardCustomResult"><span class="dashboard-card-result-label">Você recebe:</span> arquivo .xlsx</p>
         <span class="dashboard-card-action">
           <span class="js-card-continue">Continuar</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -833,6 +906,22 @@
 
   <canvas id="previewCanvas" width="1600" height="900"></canvas>
 
+  <div class="download-identity-overlay" id="downloadIdentityOverlay" role="dialog" aria-modal="true" aria-labelledby="downloadIdentityTitle">
+    <div class="download-identity-modal">
+      <h2 id="downloadIdentityTitle">Antes do download</h2>
+      <p class="download-identity-hint" id="downloadIdentityHint">Usamos essas informações apenas para registro das gerações.</p>
+      <form id="downloadIdentityForm">
+        <label for="downloadIdentityName" id="downloadIdentityNameLabel">Nome</label>
+        <input type="text" id="downloadIdentityName" name="nome" autocomplete="name" required />
+        <label for="downloadIdentityCompany" id="downloadIdentityCompanyLabel">Empresa</label>
+        <input type="text" id="downloadIdentityCompany" name="empresa" autocomplete="organization" required />
+        <p class="download-identity-error" id="downloadIdentityError"></p>
+        <button type="submit" id="downloadIdentitySubmit">Baixar arquivo</button>
+        <button type="button" class="download-identity-cancel" id="downloadIdentityCancel">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     let logoImage = null;
     // let customLogoObjectUrl = null; // DESABILITADO TEMPORARIAMENTE
@@ -842,6 +931,132 @@
     let currentMode = null; // armazena o modo atual
     const PDF_LOGO_ROUTE = '/aplicar-logo-pdf';
     let currentLanguage = 'pt'; // 'pt' ou 'es'
+    const DRIVE_REGISTER_URL = 'https://script.google.com/macros/s/AKfycbyojga_RRM6Egfk1xVjS7rk2eCrBgzswWSU17HmOuf7px0I-uy_BGwTNNRIp3W2NMLe/exec';
+    const DRIVE_REGISTER_TOKEN = 'Qr_Pedro@Trilogo';
+    const IDENTITY_STORAGE_NAME = 'qrweb_registro_nome';
+    const IDENTITY_STORAGE_COMPANY = 'qrweb_registro_empresa';
+    let downloadIdentityResolver = null;
+
+    function getDownloadIdentityTexts() {
+      if (currentLanguage === 'es') {
+        return {
+          title: 'Antes de la descarga',
+          hint: 'Usamos esta información solo para el registro de las generaciones.',
+          name: 'Nombre',
+          company: 'Empresa',
+          submit: 'Descargar archivo',
+          cancel: 'Cancelar',
+          required: 'Completa nombre y empresa para continuar.'
+        };
+      }
+      return {
+        title: 'Antes do download',
+        hint: 'Usamos essas informações apenas para registro das gerações.',
+        name: 'Nome',
+        company: 'Empresa',
+        submit: 'Baixar arquivo',
+        cancel: 'Cancelar',
+        required: 'Preencha nome e empresa para continuar.'
+      };
+    }
+
+    function applyDownloadIdentityTexts() {
+      const t = getDownloadIdentityTexts();
+      const titleEl = document.getElementById('downloadIdentityTitle');
+      const hintEl = document.getElementById('downloadIdentityHint');
+      const nameLabel = document.getElementById('downloadIdentityNameLabel');
+      const companyLabel = document.getElementById('downloadIdentityCompanyLabel');
+      const submitEl = document.getElementById('downloadIdentitySubmit');
+      const cancelEl = document.getElementById('downloadIdentityCancel');
+      if (titleEl) titleEl.textContent = t.title;
+      if (hintEl) hintEl.textContent = t.hint;
+      if (nameLabel) nameLabel.textContent = t.name;
+      if (companyLabel) companyLabel.textContent = t.company;
+      if (submitEl) submitEl.textContent = t.submit;
+      if (cancelEl) cancelEl.textContent = t.cancel;
+    }
+
+    function loadSavedIdentity() {
+      try {
+        return {
+          nome: localStorage.getItem(IDENTITY_STORAGE_NAME) || '',
+          empresa: localStorage.getItem(IDENTITY_STORAGE_COMPANY) || ''
+        };
+      } catch (e) {
+        return { nome: '', empresa: '' };
+      }
+    }
+
+    function saveIdentity(nome, empresa) {
+      try {
+        localStorage.setItem(IDENTITY_STORAGE_NAME, nome);
+        localStorage.setItem(IDENTITY_STORAGE_COMPANY, empresa);
+      } catch (e) {
+        // localStorage pode estar indisponível
+      }
+    }
+
+    function closeDownloadIdentityModal(result) {
+      const overlay = document.getElementById('downloadIdentityOverlay');
+      if (overlay) overlay.classList.remove('is-open');
+      const errorEl = document.getElementById('downloadIdentityError');
+      if (errorEl) {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      }
+      const resolve = downloadIdentityResolver;
+      downloadIdentityResolver = null;
+      if (resolve) resolve(result);
+    }
+
+    function promptDownloadIdentity() {
+      applyDownloadIdentityTexts();
+      const overlay = document.getElementById('downloadIdentityOverlay');
+      const nameInput = document.getElementById('downloadIdentityName');
+      const companyInput = document.getElementById('downloadIdentityCompany');
+      const saved = loadSavedIdentity();
+      if (nameInput) nameInput.value = saved.nome;
+      if (companyInput) companyInput.value = saved.empresa;
+      if (overlay) overlay.classList.add('is-open');
+      if (nameInput) nameInput.focus();
+
+      return new Promise((resolve) => {
+        downloadIdentityResolver = resolve;
+      });
+    }
+
+    function registerGenerationOnDrive(payload) {
+      const body = {
+        token: DRIVE_REGISTER_TOKEN,
+        nome: payload.nome,
+        empresa: payload.empresa,
+        nomeArquivo: payload.nomeArquivo
+      };
+      if (payload.arquivoBase64) {
+        body.mimeType = payload.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        body.arquivoBase64 = payload.arquivoBase64;
+      }
+
+      fetch(DRIVE_REGISTER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
+      })
+        .then(async (res) => {
+          let data = null;
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = null;
+          }
+          if (!data || data.ok !== true) {
+            console.error('Falha no registro da geração:', (data && data.erro) || res.status);
+          }
+        })
+        .catch((err) => {
+          console.error('Falha no registro da geração:', err);
+        });
+    }
 
     function getPatrimonioLabel() {
       // Em espanhol, o cliente quer a palavra no singular: "Activo"
@@ -1730,10 +1945,21 @@
         }
 
         const zipBlob = await zip.generateAsync({ type: "blob" });
+        const zipFilename = `${client}_QR_Codes.zip`;
+        const identity = await promptDownloadIdentity();
+        if (!identity) {
+          return;
+        }
+
+        registerGenerationOnDrive({
+          nome: identity.nome,
+          empresa: identity.empresa,
+          nomeArquivo: zipFilename
+        });
 
         const link = document.createElement("a");
         link.href = URL.createObjectURL(zipBlob);
-        link.download = `${client}_QR_Codes.zip`;
+        link.download = zipFilename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1839,6 +2065,25 @@
         XLSX.utils.book_append_sheet(wb, ws, 'QR_Patrimonio');
 
         const filename = `${config.client}_qr_list_${config.start}_to_${config.end}.xlsx`;
+        const identity = await promptDownloadIdentity();
+        if (!identity) {
+          return;
+        }
+
+        let arquivoBase64 = '';
+        try {
+          arquivoBase64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+        } catch (e) {
+          console.error('Falha ao preparar arquivo para registro:', e);
+        }
+        registerGenerationOnDrive({
+          nome: identity.nome,
+          empresa: identity.empresa,
+          nomeArquivo: filename,
+          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          arquivoBase64: arquivoBase64
+        });
+
         XLSX.writeFile(wb, filename);
 
         const infoEl = document.getElementById('of_info');
@@ -1906,6 +2151,40 @@
       });
     }
 
+    const downloadIdentityForm = document.getElementById('downloadIdentityForm');
+    if (downloadIdentityForm) {
+      downloadIdentityForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('downloadIdentityName');
+        const companyInput = document.getElementById('downloadIdentityCompany');
+        const nome = nameInput ? nameInput.value.trim() : '';
+        const empresa = companyInput ? companyInput.value.trim() : '';
+        if (!nome || !empresa) {
+          const errorEl = document.getElementById('downloadIdentityError');
+          if (errorEl) {
+            errorEl.textContent = getDownloadIdentityTexts().required;
+            errorEl.style.display = 'block';
+          }
+          return;
+        }
+        saveIdentity(nome, empresa);
+        closeDownloadIdentityModal({ nome, empresa });
+      });
+    }
+    const downloadIdentityCancel = document.getElementById('downloadIdentityCancel');
+    if (downloadIdentityCancel) {
+      downloadIdentityCancel.addEventListener('click', () => {
+        closeDownloadIdentityModal(null);
+      });
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const overlay = document.getElementById('downloadIdentityOverlay');
+      if (overlay && overlay.classList.contains('is-open')) {
+        closeDownloadIdentityModal(null);
+      }
+    });
+
     // Eventos da "Outra funcionalidade" (Excel)
     const ofGenerateBtn = document.getElementById('of_generateBtn');
     if (ofGenerateBtn) {
@@ -1968,11 +2247,11 @@
           dashboardSubtitle: 'Use um modelo pronto do Trílogo ou baixe os dados para criar sua própria arte.',
           cardPublicTitle: 'Usar modelo pronto',
           cardPublicDesc: 'Gere as artes com QR Code para abertura de chamados de manutenção, na quantidade que você precisar.',
-          cardPublicResult: 'Você recebe: arquivo .zip com as artes em PNG',
+          cardPublicResult: '<span class="dashboard-card-result-label">Você recebe:</span> arquivo .zip com as artes em PNG',
           cardRecommended: 'Recomendado',
           cardCustomTitle: 'Baixar dados para design próprio',
           cardCustomDesc: 'Receba uma planilha Excel com o link de cada QR Code e crie as artes na ferramenta que preferir, fora do Trílogo.',
-          cardCustomResult: 'Você recebe: arquivo .xlsx',
+          cardCustomResult: '<span class="dashboard-card-result-label">Você recebe:</span> arquivo .xlsx',
           cardContinue: 'Continuar',
           qrHeaderTitle: '🧾 QR Code de Placa de Patrimônio',
           qrHeaderSubtitle: 'Gerador de QR Codes Patrimonial Trílogo',
@@ -1999,19 +2278,25 @@
           pdfLogoLabelFile: '🖼️ Logo em PNG:',
           pdfLogoInstructionFile: 'Envie um arquivo PNG. A imagem será redimensionada para o tamanho padrão e aplicada automaticamente nas artes do PDF base.',
           pdfLogoFooterText: '• O PDF base deve estar disponível em <code>/base.pdf</code> no mesmo diretório deste arquivo.<br/>• Página 1: grade 3x3 (9 artes).<br/>• Página 2: utiliza a mesma posição da primeira arte da página 1.<br/>• Esta é a primeira versão da funcionalidade, pensada para ser expandida futuramente.',
-          pdfLogoGenerateBtn: '📄 Gerar PDF com logo'
+          pdfLogoGenerateBtn: '📄 Gerar PDF com logo',
+          downloadIdentityTitle: 'Antes do download',
+          downloadIdentityHint: 'Usamos essas informações apenas para registro das gerações.',
+          downloadIdentityNameLabel: 'Nome',
+          downloadIdentityCompanyLabel: 'Empresa',
+          downloadIdentitySubmit: 'Baixar arquivo',
+          downloadIdentityCancel: 'Cancelar'
         },
         es: {
           dashboardLabel: 'Panel de generación',
           dashboardTitle: '¿Cómo quieres generar tus códigos QR?',
-          dashboardSubtitle: 'Usa una plantilla lista de Trílogo o descarga los datos para crear tu propio diseño.',
-          cardPublicTitle: 'Usar plantilla lista',
+          dashboardSubtitle: 'Usa una plantilla predefinida de Trílogo o descarga los datos para crear tu propio diseño.',
+          cardPublicTitle: 'Usar plantilla predefinida',
           cardPublicDesc: 'Genera los diseños con código QR para abrir solicitudes de mantenimiento, en la cantidad que necesites.',
-          cardPublicResult: 'Recibes: archivo .zip con los diseños en PNG',
+          cardPublicResult: '<span class="dashboard-card-result-label">Recibes:</span> archivo .zip con los diseños en PNG',
           cardRecommended: 'Recomendado',
-          cardCustomTitle: 'Descargar datos para diseño propio',
-          cardCustomDesc: 'Recibe una hoja de cálculo Excel con el enlace de cada código QR y crea los diseños en la herramienta que prefieras, fuera de Trílogo.',
-          cardCustomResult: 'Recibes: archivo .xlsx',
+          cardCustomTitle: 'Descargar datos para tu propio diseño',
+          cardCustomDesc: 'Descarga una hoja de cálculo Excel con el enlace de cada código QR y crea los diseños en la herramienta que prefieras, fuera de Trílogo.',
+          cardCustomResult: '<span class="dashboard-card-result-label">Recibes:</span> archivo .xlsx',
           cardContinue: 'Continuar',
           qrHeaderTitle: '🧾 Código QR de Placa de Activo',
           qrHeaderSubtitle: 'Generador de códigos QR patrimoniales Trílogo',
@@ -2038,7 +2323,13 @@
           pdfLogoLabelFile: '🖼️ Logo en PNG:',
           pdfLogoInstructionFile: 'Envíe un archivo PNG. La imagen se redimensionará al tamaño estándar y se aplicará automáticamente en las artes del PDF base.',
           pdfLogoFooterText: '• El PDF base debe estar disponible en <code>/base.pdf</code> en el mismo directorio de este archivo.<br/>• Página 1: cuadrícula 3x3 (9 artes).<br/>• Página 2: utiliza la misma posición de la primera arte de la página 1.<br/>• Esta es la primera versión de la funcionalidad, pensada para ampliarse en el futuro.',
-          pdfLogoGenerateBtn: '📄 Generar PDF con logo'
+          pdfLogoGenerateBtn: '📄 Generar PDF con logo',
+          downloadIdentityTitle: 'Antes de la descarga',
+          downloadIdentityHint: 'Usamos esta información solo para el registro de las generaciones.',
+          downloadIdentityNameLabel: 'Nombre',
+          downloadIdentityCompanyLabel: 'Empresa',
+          downloadIdentitySubmit: 'Descargar archivo',
+          downloadIdentityCancel: 'Cancelar'
         }
       };
 
@@ -2103,6 +2394,8 @@
       setText('pdfLogoFooterText', dict.pdfLogoFooterText);
       const pdfGenBtn = document.getElementById('pdfLogoGenerateBtn');
       if (pdfGenBtn) pdfGenBtn.textContent = dict.pdfLogoGenerateBtn;
+
+      applyDownloadIdentityTexts();
     }
 
     // Listener para mudanças de hash (navegação direta via URL)
